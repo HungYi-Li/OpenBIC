@@ -7,7 +7,7 @@
 #include "libutil.h"
 
 #define WORKER_STACK_SIZE 10000
-#define WORKER_PRIORITY osPriorityBelowNormal
+#define WORKER_PRIORITY CONFIG_MAIN_THREAD_PRIORITY
 
 #define MAX_WORK_COUNT 32
 #define WARN_WORK_PROC_TIME_MS 1000

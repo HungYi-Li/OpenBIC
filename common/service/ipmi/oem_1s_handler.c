@@ -1311,6 +1311,30 @@ __weak void OEM_1S_BRIDGE_I2C_MSG_BY_COMPNT(ipmi_msg *msg)
 	return;
 }
 
+__weak void OEM_1S_SET_SSD_LED(ipmi_msg *msg)
+{
+	if (msg == NULL) {
+		printf("%s failed due to parameter *msg is NULL\n", __func__);
+		return;
+	}
+
+	msg->data_len = 0;
+	msg->completion_code = CC_INVALID_CMD;
+	return;
+}
+
+__weak void OEM_1S_GET_SSD_STATUS(ipmi_msg *msg)
+{
+	if (msg == NULL) {
+		printf("%s failed due to parameter *msg is NULL\n", __func__);
+		return;
+	}
+
+	msg->data_len = 0;
+	msg->completion_code = CC_INVALID_CMD;
+	return;
+}
+
 void IPMI_OEM_1S_handler(ipmi_msg *msg)
 {
 	if (msg == NULL) {
@@ -1370,6 +1394,13 @@ void IPMI_OEM_1S_handler(ipmi_msg *msg)
 	case CMD_OEM_1S_WRITE_BIC_REGISTER:
 		OEM_1S_WRITE_BIC_REGISTER(msg);
 		break;
+	case CMD_OEM_1S_SET_SSD_LED:
+		OEM_1S_SET_SSD_LED(msg);
+		break;
+	case CMD_OEM_1S_GET_SSD_STATUS:
+		OEM_1S_GET_SSD_STATUS(msg);
+		break;
+
 #ifdef CONFIG_IPMI_KCS_ASPEED
 	case CMD_OEM_1S_GET_POST_CODE:
 		OEM_1S_GET_POST_CODE(msg);

@@ -1,0 +1,279 @@
+#include <stdint.h>
+#include <stdlib.h>
+#include <kernel.h>
+
+#include "libutil.h"
+#include "util_worker.h"
+#include "ipmb.h"
+#include "ipmi.h"
+#include "libipmi.h"
+
+#include "plat_gpio.h"
+#include "plat_m2.h"
+
+#include "plat_util.h"
+
+#if 0
+struct delay_func_t {
+	uint32_t arg1;
+	uint32_t arg2;
+	struct k_work_delayable *work;
+	void (*func)(uint32_t, uint32_t);
+};
+
+static void temp_work_handler(struct k_work *work)
+{
+	struct k_work_delayable *dwork = k_work_delayable_from_work(work);
+	struct delay_func_t *p = CONTAINER_OF(dwork, struct delay_func_t, work);
+	p->func(p->arg1, p->arg2);
+}
+
+uint8_t delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t arg2)
+{
+	//K_WORK_DELAYABLE_DEFINE(temp_work, temp_work_handler);
+	struct k_work_delayable temp_work = Z_WORK_DELAYABLE_INITIALIZER(temp_work_handler);
+
+	struct delay_func_t tmp;
+	tmp.arg1 = (uint32_t)arg1;
+	tmp.arg2 = (uint32_t)arg2;
+	tmp.work = &temp_work;
+	tmp.func = func;
+
+	k_work_schedule(&temp_work, K_SECONDS(delay_time));
+	return 1;
+}
+#endif
+
+struct arg_t {
+	uint32_t arg1;
+	uint32_t arg2;
+	uint8_t (*fn)(uint32_t, uint32_t);
+};
+
+struct clock_t {
+	struct k_timer timer;
+	struct k_work free_work; // for free()
+	k_timeout_t period;
+	k_timeout_t duration;
+	uint32_t arg1;
+	uint32_t arg2;
+	uint8_t (*ex_fn)(uint32_t, uint32_t); // exec func & stop timer
+	void (*stop_fn)(uint32_t, uint32_t);
+};
+
+typedef struct {
+	uint8_t gpio_num;
+	int int_type;
+	DEASSERT_CHK_TYPE_E idx;
+	uint8_t (*fn)(DEASSERT_CHK_TYPE_E);
+} assert_func_t;
+
+#if 0
+#define DEASSERT_HANDLER_INIT(DEV)                                                                 \
+	void deassert_chk_##DEV(struct k_timer *timer_id)                                          \
+	{                                                                                          \
+		return;                                                                            \
+	}                                                                                          \
+	void deassert_handler_##DEV(struct k_timer *timer_id)                                      \
+	{                                                                                          \
+		return;                                                                            \
+	}                                                                                          \
+	struct k_timer deassert_timer_##DEV;                                                       \
+	k_timer_init(&deassert_timer_##DEV, deassert_chk_##DEV, deassert_handler_##DEV);
+/*
+k_timer_init(&my_timer, my_expiry_function, NULL);
+K_TIMER_DEFINE(deassert_timer_##DEV, deassert_chk_##DEV, deassert_handler_##DEV);*/
+DEASSERT_HANDLER_INIT(0);
+DEASSERT_HANDLER_INIT(1);
+DEASSERT_HANDLER_INIT(2);
+DEASSERT_HANDLER_INIT(3);
+#endif
+
+assert_func_t deassert_list[] = {
+	{ IRQ_INA230_E1S_0_ALERT_N, GPIO_INT_EDGE_BOTH, DEASSERT_CHK_TYPE_E_INA231_ALERT_0,
+	  assert_func },
+	{ IRQ_INA230_E1S_1_ALERT_N, GPIO_INT_EDGE_BOTH, DEASSERT_CHK_TYPE_E_INA231_ALERT_1,
+	  assert_func },
+	{ IRQ_INA230_E1S_2_ALERT_N, GPIO_INT_EDGE_BOTH, DEASSERT_CHK_TYPE_E_INA231_ALERT_2,
+	  assert_func },
+	{ IRQ_INA230_E1S_3_ALERT_N, GPIO_INT_EDGE_BOTH, DEASSERT_CHK_TYPE_E_INA231_ALERT_3,
+	  assert_func },
+};
+
+void tmp_func(void *t_args, uint32_t x)
+{
+	if (t_args == NULL)
+		return;
+
+	struct arg_t *args = (struct arg_t *)t_args;
+	args->fn(args->arg1, args->arg2);
+	SAFE_FREE(args); // free
+}
+
+void delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t arg2)
+{
+	if (func == NULL)
+		return;
+
+	worker_job *tmp = malloc(sizeof(worker_job)); // free worker by add_work()
+	struct arg_t *args = malloc(sizeof(struct arg_t)); // free args by tmp_func()
+	args->arg1 = arg1;
+	args->arg2 = arg2;
+	args->fn = func;
+
+	tmp->ptr_arg = args;
+	tmp->fn = tmp_func;
+	tmp->delay_ms = delay_time;
+
+	add_work(tmp);
+}
+
+void work_function(void *func, uint32_t arg1, uint32_t arg2)
+{
+	if (func == NULL)
+		return;
+	delay_function(0, func, arg1, arg2);
+}
+
+void free_timer(struct k_work *work)
+{
+	struct clock_t *p = CONTAINER_OF(work, struct clock_t, free_work);
+	SAFE_FREE(p);
+}
+
+void clock_ex_fn_tmp(struct k_timer *my_timer)
+{
+	if (my_timer == NULL)
+		return;
+	struct clock_t *p = CONTAINER_OF(my_timer, struct clock_t, timer);
+
+	if (p->ex_fn(p->arg1, p->arg2))
+		k_timer_stop(my_timer);
+}
+
+void clock_stop_fn_tmp(struct k_timer *my_timer)
+{
+	if (my_timer == NULL)
+		return;
+	struct clock_t *p = CONTAINER_OF(my_timer, struct clock_t, timer);
+	p->stop_fn(p->arg1, p->arg2);
+	// free clock
+	k_work_init(&p->free_work, free_timer);
+	k_work_submit(&p->free_work);
+}
+
+void add_clock(uint32_t arg1, uint32_t arg2, void *ex_fn, void *stop_fn, uint32_t duration,
+	       uint32_t period)
+{
+	struct clock_t *clock_tmp = malloc(sizeof(struct clock_t));
+	clock_tmp->arg1 = arg1;
+	clock_tmp->arg2 = arg2;
+	clock_tmp->ex_fn = ex_fn;
+	clock_tmp->stop_fn = stop_fn;
+	clock_tmp->duration = K_MSEC(duration);
+	clock_tmp->period = K_MSEC(period);
+
+	k_timer_init(&clock_tmp->timer, clock_ex_fn_tmp, clock_stop_fn_tmp);
+	k_timer_start(&clock_tmp->timer, clock_tmp->duration, clock_tmp->period);
+}
+
+/* noise */
+K_TIMER_DEFINE(ignore_noise_timer_A, NULL, NULL);
+K_TIMER_DEFINE(ignore_noise_timer_B, NULL, NULL);
+K_TIMER_DEFINE(ignore_noise_timer_C, NULL, NULL);
+K_TIMER_DEFINE(ignore_noise_timer_D, NULL, NULL);
+static uint8_t noise_flag[NOSIE_E_M2PRSNT_MAX];
+struct k_timer *idx_to_noise_timer(NOSIE_E idx)
+{
+	return (idx == NOSIE_E_M2PRSNT_A) ? &ignore_noise_timer_A :
+	       (idx == NOSIE_E_M2PRSNT_B) ? &ignore_noise_timer_B :
+	       (idx == NOSIE_E_M2PRSNT_C) ? &ignore_noise_timer_C :
+	       (idx == NOSIE_E_M2PRSNT_D) ? &ignore_noise_timer_D :
+						  NULL;
+}
+uint8_t ignore_noise(uint8_t idx, uint32_t m_sec) // 1: exec, 0: noise
+{
+	struct k_timer *ignore_noise_timer = idx_to_noise_timer(idx);
+
+	if (k_timer_status_get(ignore_noise_timer) > 0) {
+		k_timer_stop(ignore_noise_timer);
+		noise_flag[idx] = 0;
+		return 1;
+	} else {
+		if (!noise_flag[idx]) {
+			k_timer_start(ignore_noise_timer, K_MSEC(m_sec), K_NO_WAIT);
+			noise_flag[idx] = 1;
+		}
+		return 0;
+	}
+}
+
+void add_sel(uint8_t sensor_type, uint8_t event_type, uint8_t sensor_number, uint8_t event_data1,
+	     uint8_t event_data2, uint8_t event_data3)
+{
+	common_addsel_msg_t *sel_msg = (common_addsel_msg_t *)malloc(sizeof(common_addsel_msg_t));
+	sel_msg->InF_target = CL_BIC_IPMB;
+
+	sel_msg->sensor_type = sensor_type;
+	sel_msg->event_type = event_type;
+	sel_msg->sensor_number = sensor_number;
+	sel_msg->event_data1 = event_data1;
+	sel_msg->event_data2 = event_data2;
+	sel_msg->event_data3 = event_data3;
+
+	common_add_sel_evt_record(sel_msg);
+
+	SAFE_FREE(sel_msg);
+
+	return;
+}
+
+assert_func_t *assert_type_to_deassert_list(DEASSERT_CHK_TYPE_E assert_type)
+{
+	uint8_t i;
+
+	for (i = 0; i < ARRAY_SIZE(deassert_list); i++) {
+		assert_func_t *p = deassert_list + i;
+		if (p->idx == assert_type)
+			return p;
+	}
+	return NULL;
+}
+
+uint8_t deassert_chk(uint32_t assert_type, uint32_t arg2)
+{
+	if (assert_type >= DEASSERT_CHK_TYPE_E_MAX)
+		return 1;
+
+	assert_func_t *p = assert_type_to_deassert_list(assert_type);
+
+	if (!gpio_get(p->gpio_num))
+		return 1;
+
+	add_sel(IPMI_OEM_SENSOR_TYPE_OEM, IPMI_OEM_EVENT_TYPE_DEASSART, SENSOR_NUM_SYS_STA,
+		IPMI_EVENT_OFFSET_SYS_INA231_PWR_ALERT, E1S_BOARD_TYPE, assert_type);
+
+	gpio_interrupt_conf(p->gpio_num, p->int_type);
+
+	return 0;
+}
+
+uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type) // 1:success
+{
+	if (assert_type >= DEASSERT_CHK_TYPE_E_MAX)
+		return 0;
+
+	if (!gpio_get(FM_P12V_EDGE_EN))
+		return 0;
+
+	assert_func_t *p = assert_type_to_deassert_list(assert_type);
+
+	gpio_interrupt_conf(p->gpio_num, GPIO_INT_DISABLE);
+
+	add_sel(IPMI_OEM_SENSOR_TYPE_OEM, IPMI_EVENT_TYPE_SENSOR_SPEC, SENSOR_NUM_SYS_STA,
+		IPMI_EVENT_OFFSET_SYS_INA231_PWR_ALERT, E1S_BOARD_TYPE, assert_type);
+
+	add_clock(assert_type, 0, deassert_chk, NULL, 5000, 5000);
+
+	return 1;
+}

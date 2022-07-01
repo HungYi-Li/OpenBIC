@@ -1,0 +1,15 @@
+{
+  "files.associations": {
+    "*.c": "c",
+    "cstdio": "c",
+    "plat_m2.h": "c",
+    "stdio.h": "c",
+    "plat_power_seq.h": "c",
+    "plat_i2c.h": "c",
+    "plat_gpio.h": "c",
+    "stdint.h": "c",
+    "plat_class.h": "c",
+    "cmath": "c",
+    "math.h": "c"
+  }
+}

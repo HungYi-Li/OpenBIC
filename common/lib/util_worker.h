@@ -3,6 +3,8 @@
 
 #define MAX_WORK_NAME_LEN 32
 
+#include "stdint.h"
+
 /* A structure used to submit work. */
 typedef struct {
 	/* The function to be added to worker.

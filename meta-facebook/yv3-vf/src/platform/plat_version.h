@@ -1,7 +1,7 @@
 #ifndef PLAT_VERSION_H
 #define PLAT_VERSION_H
 
-#define PLATFORM_NAME "yv35"
+#define PLATFORM_NAME "yv3"
 #define PROJECT_NAME "vernalfall"
 #define DEVICE_ID 0x00
 #define DEVICE_REVISION 0x80

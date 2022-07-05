@@ -44,13 +44,13 @@ uint8_t delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t 
 }
 #endif
 
-struct arg_t {
+typedef struct {
 	uint32_t arg1;
 	uint32_t arg2;
 	uint8_t (*fn)(uint32_t, uint32_t);
-};
+} delay_item_t;
 
-struct clock_t {
+typedef struct {
 	struct k_timer timer;
 	struct k_work free_work; // for free()
 	k_timeout_t period;
@@ -59,7 +59,7 @@ struct clock_t {
 	uint32_t arg2;
 	uint8_t (*ex_fn)(uint32_t, uint32_t); // exec func & stop timer
 	void (*stop_fn)(uint32_t, uint32_t);
-};
+} clock_t;
 
 typedef struct {
 	uint8_t gpio_num;
@@ -100,52 +100,65 @@ assert_func_t deassert_list[] = {
 	  assert_func },
 };
 
-void tmp_func(void *t_args, uint32_t x)
+void tmp_func(void *args, uint32_t x)
 {
-	if (t_args == NULL)
+	if (!args)
 		return;
 
-	struct arg_t *args = (struct arg_t *)t_args;
-	args->fn(args->arg1, args->arg2);
-	SAFE_FREE(args); // free
+	delay_item_t *p = (delay_item_t *)args;
+	if (p->fn)
+		p->fn(p->arg1, p->arg2);
+	SAFE_FREE(p); // free
 }
 
 void delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t arg2)
 {
-	if (func == NULL)
+	if (!func)
 		return;
 
-	worker_job *tmp = malloc(sizeof(worker_job)); // free worker by add_work()
-	struct arg_t *args = malloc(sizeof(struct arg_t)); // free args by tmp_func()
-	args->arg1 = arg1;
-	args->arg2 = arg2;
-	args->fn = func;
+	worker_job job;
+	delay_item_t *item = malloc(sizeof(delay_item_t)); // free args by tmp_func()
+	if (!item) {
+		printf("%s() malloc fail!\n", __func__);
+		return;
+	}
 
-	tmp->ptr_arg = args;
-	tmp->fn = tmp_func;
-	tmp->delay_ms = delay_time;
+	item->arg1 = arg1;
+	item->arg2 = arg2;
+	item->fn = func;
 
-	add_work(tmp);
+	job.ptr_arg = item;
+	job.fn = tmp_func;
+	job.delay_ms = delay_time;
+
+	add_work(&job);
 }
 
 void work_function(void *func, uint32_t arg1, uint32_t arg2)
 {
-	if (func == NULL)
+	if (!func)
 		return;
 	delay_function(0, func, arg1, arg2);
 }
 
 void free_timer(struct k_work *work)
 {
-	struct clock_t *p = CONTAINER_OF(work, struct clock_t, free_work);
+	if (!work)
+		return;
+	clock_t *p = CONTAINER_OF(work, clock_t, free_work);
 	SAFE_FREE(p);
 }
 
 void clock_ex_fn_tmp(struct k_timer *my_timer)
 {
-	if (my_timer == NULL)
+	if (!my_timer)
 		return;
-	struct clock_t *p = CONTAINER_OF(my_timer, struct clock_t, timer);
+	clock_t *p = CONTAINER_OF(my_timer, clock_t, timer);
+
+	if (!p->ex_fn) {
+		printf("%s() need a function", __func__);
+		return;
+	}
 
 	if (p->ex_fn(p->arg1, p->arg2))
 		k_timer_stop(my_timer);
@@ -153,10 +166,13 @@ void clock_ex_fn_tmp(struct k_timer *my_timer)
 
 void clock_stop_fn_tmp(struct k_timer *my_timer)
 {
-	if (my_timer == NULL)
+	if (!my_timer)
 		return;
-	struct clock_t *p = CONTAINER_OF(my_timer, struct clock_t, timer);
-	p->stop_fn(p->arg1, p->arg2);
+	clock_t *p = CONTAINER_OF(my_timer, clock_t, timer);
+
+	if (p->stop_fn)
+		p->stop_fn(p->arg1, p->arg2);
+
 	// free clock
 	k_work_init(&p->free_work, free_timer);
 	k_work_submit(&p->free_work);
@@ -165,11 +181,15 @@ void clock_stop_fn_tmp(struct k_timer *my_timer)
 void add_clock(uint32_t arg1, uint32_t arg2, void *ex_fn, void *stop_fn, uint32_t duration,
 	       uint32_t period)
 {
-	struct clock_t *clock_tmp = malloc(sizeof(struct clock_t));
+	clock_t *clock_tmp = malloc(sizeof(clock_t));
+	if (!clock_tmp) {
+		printf("%s() malloc fail!\n", __func__);
+		return;
+	}
 	clock_tmp->arg1 = arg1;
 	clock_tmp->arg2 = arg2;
-	clock_tmp->ex_fn = ex_fn;
-	clock_tmp->stop_fn = stop_fn;
+	clock_tmp->ex_fn = ex_fn; // check by clock_ex_fn_tmp
+	clock_tmp->stop_fn = stop_fn; // check by clock_stop_fn_tmp
 	clock_tmp->duration = K_MSEC(duration);
 	clock_tmp->period = K_MSEC(period);
 
@@ -211,19 +231,17 @@ uint8_t ignore_noise(uint8_t idx, uint32_t m_sec) // 1: exec, 0: noise
 void add_sel(uint8_t sensor_type, uint8_t event_type, uint8_t sensor_number, uint8_t event_data1,
 	     uint8_t event_data2, uint8_t event_data3)
 {
-	common_addsel_msg_t *sel_msg = (common_addsel_msg_t *)malloc(sizeof(common_addsel_msg_t));
-	sel_msg->InF_target = CL_BIC_IPMB;
+	common_addsel_msg_t sel_msg;
+	sel_msg.InF_target = CL_BIC_IPMB;
 
-	sel_msg->sensor_type = sensor_type;
-	sel_msg->event_type = event_type;
-	sel_msg->sensor_number = sensor_number;
-	sel_msg->event_data1 = event_data1;
-	sel_msg->event_data2 = event_data2;
-	sel_msg->event_data3 = event_data3;
+	sel_msg.sensor_type = sensor_type;
+	sel_msg.event_type = event_type;
+	sel_msg.sensor_number = sensor_number;
+	sel_msg.event_data1 = event_data1;
+	sel_msg.event_data2 = event_data2;
+	sel_msg.event_data3 = event_data3;
 
-	common_add_sel_evt_record(sel_msg);
-
-	SAFE_FREE(sel_msg);
+	common_add_sel_evt_record(&sel_msg);
 
 	return;
 }
@@ -246,6 +264,10 @@ uint8_t deassert_chk(uint32_t assert_type, uint32_t arg2)
 		return 1;
 
 	assert_func_t *p = assert_type_to_deassert_list(assert_type);
+	if (!p) {
+		printf("%s() find deassert list fail!\n", __func__);
+		return 1;
+	}
 
 	if (!gpio_get(p->gpio_num))
 		return 1;
@@ -258,15 +280,19 @@ uint8_t deassert_chk(uint32_t assert_type, uint32_t arg2)
 	return 0;
 }
 
-uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type) // 1:success
+uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type) // 0:success
 {
 	if (assert_type >= DEASSERT_CHK_TYPE_E_MAX)
-		return 0;
+		return 1;
 
 	if (!gpio_get(FM_P12V_EDGE_EN))
-		return 0;
+		return 1;
 
 	assert_func_t *p = assert_type_to_deassert_list(assert_type);
+	if (!p) {
+		printf("%s() find deassert list fail!\n", __func__);
+		return 1;
+	}
 
 	gpio_interrupt_conf(p->gpio_num, GPIO_INT_DISABLE);
 
@@ -275,5 +301,5 @@ uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type) // 1:success
 
 	add_clock(assert_type, 0, deassert_chk, NULL, 5000, 5000);
 
-	return 1;
+	return 0;
 }

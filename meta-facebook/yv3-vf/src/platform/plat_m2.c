@@ -70,7 +70,7 @@ uint8_t m2_pwrgd(uint8_t idx)
 
 	return ((flt_pin == 0xFF) || (p12v_en_pin == 0xFF) || (pwrdis == 0xFF)) ?
 			     0 :
-			     (get_fm_p12v_sw_en(idx) && gpio_get(flt_pin) && !gpio_get(pwrdis));
+			     (!get_fm_p12v_sw_en(idx) && gpio_get(flt_pin) && !gpio_get(pwrdis));
 }
 
 uint8_t m2_get_prefix_sen_num(uint8_t idx)
@@ -105,10 +105,10 @@ uint8_t rst_edsff(uint8_t idx, uint8_t val)
 							0xFF;
 
 	if (pin == 0xFF)
-		return 0;
+		return 1;
 
 	gpio_set(pin, val);
-	return 1;
+	return 0;
 }
 
 bool is_m2_sen_readable(uint8_t sen_num)

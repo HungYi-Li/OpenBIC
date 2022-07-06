@@ -35,16 +35,3 @@ void pal_set_sys_status()
 	K_WORK_DELAYABLE_DEFINE(up_5sec_handler, BICup5secTickHandler);
 	k_work_schedule(&up_5sec_handler, K_SECONDS(5000));
 }
-/*
-void pal_set_sys_status()
-{
-	set_MB_DC_status(FM_POWER_EN);
-	set_DC_status(PWRGD_CARD_PWROK);
-	control_power_sequence();
-}
-
-#define DEF_PROJ_GPIO_PRIORITY 61
-
-DEVICE_DEFINE(PRE_DEF_PROJ_GPIO, "PRE_DEF_PROJ_GPIO_NAME", &gpio_init, NULL, NULL, NULL,
-	      POST_KERNEL, DEF_PROJ_GPIO_PRIORITY, NULL);
-*/

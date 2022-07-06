@@ -20,7 +20,6 @@ void dev_pwrgd_handler(uint8_t idx);
 uint8_t get_fm_p12v_sw_en(uint8_t idx);
 uint8_t pwrgd_p12v_aux_100ms_get(void);
 void pwrgd_p12v_aux_100ms_set(uint32_t val, uint32_t unused1);
-uint8_t device_all_power_set(uint8_t idx, uint8_t set_val);
 
 void dev_pwrgd_handler_dev0(void);
 void dev_pwrgd_handler_dev1(void);

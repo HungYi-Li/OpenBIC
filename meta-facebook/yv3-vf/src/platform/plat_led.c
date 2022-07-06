@@ -66,9 +66,9 @@ void stop_blink_timer(uint8_t idx) // STOP_BLINK_CLOCK
 uint8_t SSDLEDCtrl(uint8_t idx, uint8_t ctrl)
 {
 	if (idx >= M2_IDX_E_MAX)
-		return 0;
+		return 1;
 	if (ctrl > 0x03)
-		return 0;
+		return 1;
 
 	// void SSD_LEDThread(void)
 	AmberLEDStatus[idx] = ctrl;
@@ -91,7 +91,7 @@ uint8_t SSDLEDCtrl(uint8_t idx, uint8_t ctrl)
 		break;
 	}
 
-	return 1;
+	return 0;
 }
 
 uint8_t GetAmberLEDStat(uint8_t idx)

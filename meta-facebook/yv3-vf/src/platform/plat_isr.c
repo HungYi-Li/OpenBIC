@@ -147,7 +147,6 @@ void prsnt_int_handler(uint32_t idx, uint32_t arg1)
 #define DEV_PRSNT_HANDLER(idx)                                                                     \
 	void prsnt_int_handler_dev##idx(void)                                                      \
 	{                                                                                          \
-		/*prsnt_int_handler(idx); */                                                       \
 		delay_function(10, prsnt_int_handler, idx, 0);                                     \
 	}
 

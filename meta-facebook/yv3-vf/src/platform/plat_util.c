@@ -265,7 +265,7 @@ uint8_t deassert_chk(uint32_t assert_type, uint32_t arg2)
 
 	assert_func_t *p = assert_type_to_deassert_list(assert_type);
 	if (!p) {
-		printf("%s() find deassert list fail!\n", __func__);
+		printf("%s() can't find deassert list!\n", __func__);
 		return 1;
 	}
 
@@ -290,7 +290,7 @@ uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type) // 0:success
 
 	assert_func_t *p = assert_type_to_deassert_list(assert_type);
 	if (!p) {
-		printf("%s() find deassert list fail!\n", __func__);
+		printf("%s() can't find deassert list!\n", __func__);
 		return 1;
 	}
 

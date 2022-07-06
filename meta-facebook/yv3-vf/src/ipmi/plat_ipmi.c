@@ -48,7 +48,7 @@ void OEM_1S_SET_SSD_LED(ipmi_msg *msg)
 		return;
 	}
 
-	if (!SSDLEDCtrl(dev, msg->data[1])) {
+	if (SSDLEDCtrl(dev, msg->data[1])) {
 		msg->data_len = 0;
 		msg->completion_code = CC_INVALID_DATA_FIELD;
 		return;

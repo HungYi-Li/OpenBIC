@@ -51,7 +51,7 @@ uint8_t fm_p3v3_sw_en(uint8_t idx, uint8_t val)
 							0xFF;
 
 	if (pin == 0xFF)
-		return 0;
+		return 1;
 	//If value is want to set to enable(1) set GPIO direction to input (0).
 	//Else if input pin want to set to disable(0), set GPIO value to 0 and then set GPIO direction to output (1).
 	if (val) {
@@ -61,7 +61,7 @@ uint8_t fm_p3v3_sw_en(uint8_t idx, uint8_t val)
 		gpio_conf(pin, 1);
 	}
 
-	return 1;
+	return 0;
 }
 
 uint8_t fm_p12v_sw_en(uint8_t idx, uint8_t val)
@@ -73,7 +73,7 @@ uint8_t fm_p12v_sw_en(uint8_t idx, uint8_t val)
 							0xFF;
 
 	if (pin == 0xFF)
-		return 0;
+		return 1;
 
 	if (get_e1s_hsc_config() != CONFIG_HSC_BYPASS)
 		gpio_set(pin, val);
@@ -89,7 +89,7 @@ uint8_t fm_p12v_sw_en(uint8_t idx, uint8_t val)
 
 		dev_pwrgd_handler(idx);
 	}
-	return 1;
+	return 0;
 }
 
 uint8_t get_fm_p12v_sw_en(uint8_t idx)
@@ -118,10 +118,10 @@ uint8_t clkbuf_oe_en(uint8_t idx, uint8_t val)
 							0xFF;
 
 	if (pin == 0xFF)
-		return 0;
+		return 1;
 
 	gpio_set(pin, !val);
-	return 1;
+	return 0;
 }
 
 uint8_t get_fm_pwrdis_status(uint8_t idx)
@@ -146,10 +146,10 @@ uint8_t fm_pwrdis_en(uint8_t idx, uint8_t val)
 							0xFF;
 
 	if (pin == 0xFF)
-		return 0;
+		return 1;
 
 	gpio_set(pin, val);
-	return 1;
+	return 0;
 }
 
 void check_dc_off_process(void)
@@ -157,7 +157,7 @@ void check_dc_off_process(void)
 	uint8_t i;
 
 	for (i = 0; i < M2_IDX_E_MAX; i++) {
-		if (get_fm_p12v_sw_en(i))
+		if (!get_fm_p12v_sw_en(i))
 			break;
 	}
 
@@ -197,17 +197,12 @@ uint8_t m2_dev_power_switch_with_pwrdis_chk(uint8_t idx, uint8_t enable, uint8_t
 
 	const uint8_t en_12v = dc_en && hsc_pwrgd && prsnt && enable;
 	const uint8_t en_3v3 = force_ctl_3v3 ? enable : prsnt;
-	// const uint8_t en_clk = dc_en && hsc_pwrgd && prsnt;
 	const uint8_t en_clk = enable && prsnt;
-
-	//   SMC_DebugPrintf("[%s] idx = %d , enable = %d , chk_pwrdis = %d , force_ctl_3v3 = %d \n",__func__ , idx , enable,chk_pwrdis ,force_ctl_3v3 );
-	//   SMC_DebugPrintf("[%s] en_12v = %d , en_3v3 = %d,  en_clk = %d \n", __func__ , en_12v, en_3v3 , en_clk);
-	//   SMC_DebugPrintf("\n");
 
 	/* if the PWRDIS is enable by user, don't control the drive power by 12V/3V3 SW. */
 	if (chk_pwrdis) {
 		if (get_fm_pwrdis_status(idx))
-			return 0;
+			return 1;
 	}
 
 	/* for the drive power off, the 12v should be disable before 3v3 */
@@ -238,7 +233,7 @@ uint8_t m2_dev_power_switch_with_pwrdis_chk(uint8_t idx, uint8_t enable, uint8_t
 		delay_function(20, check_dc_off_process, 0, 0);
 	}
 
-	return 1;
+	return 0;
 }
 
 uint8_t m2_dev_power_switch(uint8_t idx, uint8_t enable)
@@ -252,8 +247,6 @@ uint8_t device_all_power_set(uint8_t idx, uint8_t set_val)
 	uint8_t chk_pwrdis = (set_val & DEV_CHK_DISABLE ? 1 : 0);
 	uint8_t force_ctl_3v3 = (set_val & DEV_FORCE_3V3 ? 1 : 0);
 
-	//    SMC_DebugPrintf("[%s] -- idx = %d , is_on = %d , chk_pwrdis = %d , force_ctl_3v3 = %d \n" , __func__ , idx , is_on , chk_pwrdis , force_ctl_3v3);
-	//    SMC_DebugPrintf("set_val = 0x%x \n" , set_val);
 	if (is_on) {
 		if (set_val & DEV_PWR_CTRL)
 			m2_dev_power_switch_with_pwrdis_chk(idx, is_on, chk_pwrdis, force_ctl_3v3);
@@ -301,7 +294,7 @@ void dev_pwrgd_handler(uint8_t idx)
 	if (pin == 0xFF)
 		return;
 
-	if (get_fm_p12v_sw_en(idx)) {
+	if (!get_fm_p12v_sw_en(idx)) {
 		delay_function(1000, set_sensor_pwrgd_1s, idx, 0);
 	} else {
 		sensor_pwrgd_1s[idx] = 0;
@@ -314,7 +307,7 @@ void pwrgd_p12v_aux_100ms_set(uint32_t val, uint32_t unused1)
 		/*Only ADM1278 has i2c and need to initial in all HSC configuration*/
 
 		if (get_e1s_hsc_config() == CONFIG_HSC_ADM1278) {
-			if (plat_adm1278_init(I2C_BUS_ADM1278, I2C_ADDR_ADM1278))
+			if (!plat_adm1278_init(I2C_BUS_ADM1278, I2C_ADDR_ADM1278))
 				set_hsc_ready_flag(1);
 		} else {
 			set_hsc_ready_flag(1);

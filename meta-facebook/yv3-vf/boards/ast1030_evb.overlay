@@ -12,7 +12,7 @@
 };
 
 &gpio0_a_d {
-	aspeed,persist-maps = <0xA0F00000>;
+	aspeed,persist-maps = <0xBEF00000>;
 };
 
 &gpio0_e_h {

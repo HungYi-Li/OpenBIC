@@ -373,7 +373,6 @@ bool pal_load_gpio_config(void)
 	return 1;
 };
 
-#if 1
 #define REG_GPIO_BASE 0x7e780000
 #define NUM_OF_GROUP 6
 uint32_t E1S_GPIO_GROUP_REG_ACCESS[NUM_OF_GROUP] = {
@@ -384,21 +383,9 @@ uint32_t E1S_GPIO_GROUP_REG_ACCESS[NUM_OF_GROUP] = {
 	REG_GPIO_BASE + 0x80, /* GPIO_Q/R/S/T Data Value Register */
 	REG_GPIO_BASE + 0x88 /* GPIO_U Data Value Register */
 };
-#endif
+
 uint8_t get_gpio_conf(uint32_t pin)
 {
 	uint32_t g_dir = sys_read32(E1S_GPIO_GROUP_REG_ACCESS[pin / 32] + 0x4);
 	return (g_dir & BIT(pin % 32));
 }
-
-/*
-void enable_PRDY_interrupt()
-{
-	gpio_interrupt_conf(H_BMC_PRDY_BUF_N, GPIO_INT_EDGE_FALLING);
-}
-
-void disable_PRDY_interrupt()
-{
-	gpio_interrupt_conf(H_BMC_PRDY_BUF_N, GPIO_INT_DISABLE);
-}
-*/

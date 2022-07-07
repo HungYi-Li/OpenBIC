@@ -12,7 +12,7 @@
 const EEPROM_CFG plat_fru_config[] = {
 	{
 		NV_ATMEL_24C128,
-		RF_FRU_ID,
+		VF_FRU_ID,
 		VF_FRU_PORT,
 		VF_FRU_ADDR,
 		FRU_DEV_ACCESS_BYTE,

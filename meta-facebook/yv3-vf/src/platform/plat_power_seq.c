@@ -137,6 +137,7 @@ uint8_t get_fm_pwrdis_status(uint8_t idx)
 
 	return gpio_get(pin);
 }
+
 uint8_t fm_pwrdis_en(uint8_t idx, uint8_t val)
 {
 	const uint8_t pin = (idx == M2_IDX_E_A) ? FM_PWRDIS_E1S_0 :

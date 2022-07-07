@@ -13,37 +13,6 @@
 
 #include "plat_util.h"
 
-#if 0
-struct delay_func_t {
-	uint32_t arg1;
-	uint32_t arg2;
-	struct k_work_delayable *work;
-	void (*func)(uint32_t, uint32_t);
-};
-
-static void temp_work_handler(struct k_work *work)
-{
-	struct k_work_delayable *dwork = k_work_delayable_from_work(work);
-	struct delay_func_t *p = CONTAINER_OF(dwork, struct delay_func_t, work);
-	p->func(p->arg1, p->arg2);
-}
-
-uint8_t delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t arg2)
-{
-	//K_WORK_DELAYABLE_DEFINE(temp_work, temp_work_handler);
-	struct k_work_delayable temp_work = Z_WORK_DELAYABLE_INITIALIZER(temp_work_handler);
-
-	struct delay_func_t tmp;
-	tmp.arg1 = (uint32_t)arg1;
-	tmp.arg2 = (uint32_t)arg2;
-	tmp.work = &temp_work;
-	tmp.func = func;
-
-	k_work_schedule(&temp_work, K_SECONDS(delay_time));
-	return 1;
-}
-#endif
-
 typedef struct {
 	uint32_t arg1;
 	uint32_t arg2;
@@ -67,27 +36,6 @@ typedef struct {
 	DEASSERT_CHK_TYPE_E idx;
 	uint8_t (*fn)(DEASSERT_CHK_TYPE_E);
 } assert_func_t;
-
-#if 0
-#define DEASSERT_HANDLER_INIT(DEV)                                                                 \
-	void deassert_chk_##DEV(struct k_timer *timer_id)                                          \
-	{                                                                                          \
-		return;                                                                            \
-	}                                                                                          \
-	void deassert_handler_##DEV(struct k_timer *timer_id)                                      \
-	{                                                                                          \
-		return;                                                                            \
-	}                                                                                          \
-	struct k_timer deassert_timer_##DEV;                                                       \
-	k_timer_init(&deassert_timer_##DEV, deassert_chk_##DEV, deassert_handler_##DEV);
-/*
-k_timer_init(&my_timer, my_expiry_function, NULL);
-K_TIMER_DEFINE(deassert_timer_##DEV, deassert_chk_##DEV, deassert_handler_##DEV);*/
-DEASSERT_HANDLER_INIT(0);
-DEASSERT_HANDLER_INIT(1);
-DEASSERT_HANDLER_INIT(2);
-DEASSERT_HANDLER_INIT(3);
-#endif
 
 assert_func_t deassert_list[] = {
 	{ IRQ_INA230_E1S_0_ALERT_N, GPIO_INT_EDGE_BOTH, DEASSERT_CHK_TYPE_E_INA231_ALERT_0,

@@ -78,6 +78,7 @@ void dev_rst(void)
 	for (i = M2_IDX_E_A; i < M2_IDX_E_MAX; i++)
 		rst_edsff(i, val);
 }
+
 uint8_t get_p12v_flt_status(uint8_t idx)
 {
 	const uint8_t pin = (idx == M2_IDX_E_A) ? IRQ_P12V_E1S_0_FLT_N :
@@ -94,7 +95,7 @@ uint8_t get_p12v_flt_status(uint8_t idx)
 
 uint8_t check_12v_dev_pwrgd(void)
 {
-	int i = 0;
+	uint8_t i = 0;
 	if (get_e1s_pwrgd()) {
 		for (i = 0; i < M2_IDX_E_MAX; i++) {
 			if (get_p12v_flt_status(i))

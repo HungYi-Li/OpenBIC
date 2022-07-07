@@ -21,7 +21,6 @@ void init_sys_board_id(uint8_t board_id)
 	default:
 		printf("[%s] input board id not support: 0x%x\n", __func__, board_id);
 		system_board_id = UNKNOWN_BOARD;
-		break;
 	}
 }
 
@@ -33,7 +32,6 @@ void init_platform_config()
 
 	init_sys_board_id(board_id);
 	printf("[%s] board id 0x%x\n", __func__, system_board_id);
-	return;
 }
 
 uint8_t get_board_id()
@@ -51,7 +49,6 @@ void init_e1s_config()
 	e1s_adc_config = config >> 2;
 	printf("[%s] hsc config 0x%x\n", __func__, e1s_hsc_config);
 	printf("[%s] adc config 0x%x\n", __func__, e1s_adc_config);
-	return;
 }
 
 uint8_t get_e1s_hsc_config()

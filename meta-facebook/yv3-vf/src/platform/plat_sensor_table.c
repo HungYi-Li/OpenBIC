@@ -9,7 +9,6 @@
 #include "plat_hook.h"
 #include "plat_power_seq.h"
 #include "plat_m2.h"
-#include "plat_hsc.h"
 
 #define CONFIG_ISL69260 false
 bool stby_access(uint8_t sensor_number);
@@ -23,19 +22,10 @@ sensor_cfg plat_sensor_config[] = {
 	{ SENSOR_NUM_T_MB_OUTLET_TEMP_T, sensor_dev_tmp75, I2C_BUS2, TMP75_ADDR, TMP75_TEMP_OFFSET,
 	  stby_access, 0, 0, SAMPLE_COUNT_DEFAULT, 0, SENSOR_INIT_STATUS, NULL, NULL, NULL, NULL,
 	  NULL },
-	// hsc
-	{ SENSOR_NUM_V_HSC_IN, sensor_dev_adm1278, I2C_BUS10, HSC_ADDR, ADM1278_VIN_REG,
-	  get_hsc_ready_flag, 0, 0, SAMPLE_COUNT_DEFAULT, 0, SENSOR_INIT_STATUS, NULL, NULL, NULL,
-	  NULL, NULL },
-	{ SENSOR_NUM_I_HSC_OUT, sensor_dev_adm1278, I2C_BUS10, HSC_ADDR, ADM1278_IOUT_REG,
-	  get_hsc_ready_flag, 0, 0, SAMPLE_COUNT_DEFAULT, 0, SENSOR_INIT_STATUS, NULL, NULL, NULL,
-	  NULL, NULL },
-	{ SENSOR_NUM_P_HSC_IN, sensor_dev_adm1278, I2C_BUS10, HSC_ADDR, ADM1278_PIN_REG,
-	  get_hsc_ready_flag, 0, 0, SAMPLE_COUNT_DEFAULT, 0, SENSOR_INIT_STATUS, NULL, NULL, NULL,
-	  NULL, NULL },
-	{ SENSOR_NUM_T_HSC, sensor_dev_adm1278, I2C_BUS10, HSC_ADDR, ADM1278_TEMP_REG,
-	  get_hsc_ready_flag, 0, 0, SAMPLE_COUNT_DEFAULT, 0, SENSOR_INIT_STATUS, NULL, NULL, NULL,
-	  NULL, NULL },
+
+	/*
+		E1S respin doesn't have hsc, add to SDR but not sensor
+ 	*/
 
 	// Voltage
 	{ SENSOR_NUM_V_12_AUX, sensor_dev_ast_adc, ADC_PORT1, NONE, NONE, stby_access, 704, 604,

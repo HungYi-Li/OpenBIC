@@ -10,7 +10,6 @@
 #include "plat_isr.h"
 #include "plat_i2c.h"
 #include "plat_hwmon.h"
-#include "plat_hsc.h"
 
 #include "plat_power_seq.h"
 
@@ -304,19 +303,6 @@ void dev_pwrgd_handler(uint8_t idx)
 
 void pwrgd_p12v_aux_100ms_set(uint32_t val, uint32_t unused1)
 {
-	if (val) {
-		/*Only ADM1278 has i2c and need to initial in all HSC configuration*/
-
-		if (get_e1s_hsc_config() == CONFIG_HSC_ADM1278) {
-			if (!plat_adm1278_init(I2C_BUS_ADM1278, I2C_ADDR_ADM1278))
-				set_hsc_ready_flag(1);
-		} else {
-			set_hsc_ready_flag(1);
-		}
-	} else {
-		set_hsc_ready_flag(0);
-	}
-
 	is_pwrgd_p12v_aux_100ms = val;
 	dev_rst();
 }

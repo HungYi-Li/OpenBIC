@@ -387,3 +387,8 @@ uint8_t get_gpio_conf(uint32_t pin)
 	uint32_t g_dir = sys_read32(E1S_GPIO_GROUP_REG_ACCESS[pin / 32] + 0x4);
 	return (g_dir & BIT(pin % 32));
 }
+
+void set_gpio_debounce(uint32_t pin, uint32_t debounce_time) // debounce_time(ms)
+{
+	//TBD
+}

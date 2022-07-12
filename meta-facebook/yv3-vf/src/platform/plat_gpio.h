@@ -10,35 +10,35 @@ uint8_t get_gpio_conf(uint32_t pin);
 // dedicate gpio A0~A7, B0~B7, C0~C7, D0~D7, E0~E7, total 40 gpios
 // Default name: Reserve_GPIOH0
 #define name_gpioA                                                                                 \
-	gpio_name_to_num(IRQ_P12V_E1S_0_FLT_N) gpio_name_to_num(IRQ_P12V_E1S_1_FLT_N)              \
-		gpio_name_to_num(IRQ_P12V_E1S_2_FLT_N) gpio_name_to_num(IRQ_P12V_E1S_3_FLT_N)      \
-			gpio_name_to_num(IRQ_P3V3_E1S_0_FLT_N)                                     \
-				gpio_name_to_num(IRQ_P3V3_E1S_1_FLT_N)                             \
-					gpio_name_to_num(IRQ_P3V3_E1S_2_FLT_N)                     \
-						gpio_name_to_num(IRQ_P3V3_E1S_3_FLT_N)
+	gpio_name_to_num(IRQ_P12V_E1S_3_FLT_N) gpio_name_to_num(IRQ_P12V_E1S_2_FLT_N)              \
+		gpio_name_to_num(IRQ_P12V_E1S_1_FLT_N) gpio_name_to_num(IRQ_P12V_E1S_0_FLT_N)      \
+			gpio_name_to_num(IRQ_P3V3_E1S_3_FLT_N)                                     \
+				gpio_name_to_num(IRQ_P3V3_E1S_2_FLT_N)                             \
+					gpio_name_to_num(IRQ_P3V3_E1S_1_FLT_N)                     \
+						gpio_name_to_num(IRQ_P3V3_E1S_0_FLT_N)
 #define name_gpioB                                                                                 \
 	gpio_name_to_num(PWRGD_P12V_AUX) gpio_name_to_num(IRQ_P12V_HSC_ALERT1_N)                   \
 		gpio_name_to_num(IRQ_P12V_HSC_ALERT2_N) gpio_name_to_num(PU_DB800_HI_BW)           \
 			gpio_name_to_num(LED_PWRGD_P12V_E1S_ALL) gpio_name_to_num(FM_AUX_PWR_EN)   \
-				gpio_name_to_num(RST_SMB_E1S_0_N)                                  \
-					gpio_name_to_num(RST_SMB_E1S_1_N)
+				gpio_name_to_num(RST_SMB_E1S_3_N)                                  \
+					gpio_name_to_num(RST_SMB_E1S_2_N)
 #define name_gpioC                                                                                 \
 	gpio_name_to_num(FM_BOARD_ID_0) gpio_name_to_num(FM_BOARD_ID_1)                            \
 		gpio_name_to_num(FM_BOARD_ID_2) gpio_name_to_num(FM_BOARD_ID_3)                    \
-			gpio_name_to_num(RST_BIC_E1S_0_N) gpio_name_to_num(RST_BIC_E1S_1_N)        \
-				gpio_name_to_num(RST_BIC_E1S_2_N)                                  \
-					gpio_name_to_num(RST_BIC_E1S_3_N)
+			gpio_name_to_num(RST_BIC_E1S_3_N) gpio_name_to_num(RST_BIC_E1S_2_N)        \
+				gpio_name_to_num(RST_BIC_E1S_1_N)                                  \
+					gpio_name_to_num(RST_BIC_E1S_0_N)
 #define name_gpioD                                                                                 \
-	gpio_name_to_num(FM_MB_SLOT_ID0) gpio_name_to_num(FM_PWRDIS_E1S_0)                         \
-		gpio_name_to_num(FM_PWRDIS_E1S_1) gpio_name_to_num(FM_PWRDIS_E1S_2)                \
-			gpio_name_to_num(FM_PWRDIS_E1S_3) gpio_name_to_num(FM_P12V_E1S_3_EN)       \
+	gpio_name_to_num(FM_MB_SLOT_ID0) gpio_name_to_num(FM_PWRDIS_E1S_3)                         \
+		gpio_name_to_num(FM_PWRDIS_E1S_2) gpio_name_to_num(FM_PWRDIS_E1S_1)                \
+			gpio_name_to_num(FM_PWRDIS_E1S_0) gpio_name_to_num(FM_P12V_E1S_0_EN)       \
 				gpio_name_to_num(IRQ_TMP75_ALERT_N)                                \
-					gpio_name_to_num(FM_P3V3_E1S_3_SW_EN)
+					gpio_name_to_num(FM_P3V3_E1S_0_SW_EN)
 #define name_gpioE                                                                                 \
 	gpio_name_to_num(FM_POWER_EN) gpio_name_to_num(PWRGD_EXP_PWROK) gpio_name_to_num(RST_MB_N) \
 		gpio_name_to_num(Reserve_GPIOE3) gpio_name_to_num(FM_FRU_WC_N)                     \
-			gpio_name_to_num(P1V2_VDD_PG_R) gpio_name_to_num(RST_SMB_E1S_2_N)          \
-				gpio_name_to_num(RST_SMB_E1S_3_N)
+			gpio_name_to_num(P1V2_VDD_PG_R) gpio_name_to_num(RST_SMB_E1S_1_N)          \
+				gpio_name_to_num(RST_SMB_E1S_0_N)
 #define name_gpioF                                                                                 \
 	gpio_name_to_num(Reserve_GPIOF0) gpio_name_to_num(IRQ_SMB_ALERT_N)                         \
 		gpio_name_to_num(FM_P3V3_E1S_EN) gpio_name_to_num(FM_P12V_EDGE_EN)                 \
@@ -46,13 +46,13 @@ uint8_t get_gpio_conf(uint32_t pin);
 				gpio_name_to_num(IRQ_P12V_EDGE_FLT_N)                              \
 					gpio_name_to_num(Reserve_GPIOF7)
 #define name_gpioG                                                                                 \
-	gpio_name_to_num(LED_BIC_E1S_0) gpio_name_to_num(LED_BIC_E1S_1)                            \
-		gpio_name_to_num(LED_BIC_E1S_2) gpio_name_to_num(LED_BIC_E1S_3)                    \
-			gpio_name_to_num(FM_MB_SLOT_ID1) gpio_name_to_num(FM_PRSNT_E1S_0_N)        \
-				gpio_name_to_num(FM_PRSNT_E1S_1_N)                                 \
-					gpio_name_to_num(FM_PRSNT_E1S_2_N)
+	gpio_name_to_num(LED_BIC_E1S_3) gpio_name_to_num(LED_BIC_E1S_2)                            \
+		gpio_name_to_num(LED_BIC_E1S_1) gpio_name_to_num(LED_BIC_E1S_0)                    \
+			gpio_name_to_num(FM_MB_SLOT_ID1) gpio_name_to_num(FM_PRSNT_E1S_3_N)        \
+				gpio_name_to_num(FM_PRSNT_E1S_2_N)                                 \
+					gpio_name_to_num(FM_PRSNT_E1S_1_N)
 #define name_gpioH                                                                                 \
-	gpio_name_to_num(FM_PRSNT_E1S_3_N) gpio_name_to_num(Reserve_GPIOH1)                        \
+	gpio_name_to_num(FM_PRSNT_E1S_0_N) gpio_name_to_num(Reserve_GPIOH1)                        \
 		gpio_name_to_num(Reserve_GPIOH2) gpio_name_to_num(Reserve_GPIOH3)                  \
 			gpio_name_to_num(Reserve_GPIOH4) gpio_name_to_num(Reserve_GPIOH5)          \
 				gpio_name_to_num(Reserve_GPIOH6) gpio_name_to_num(Reserve_GPIOH7)
@@ -85,13 +85,13 @@ uint8_t get_gpio_conf(uint32_t pin);
 #define name_gpioN                                                                                 \
 	gpio_name_to_num(Reserve_GPION0) gpio_name_to_num(Reserve_GPION1)                          \
 		gpio_name_to_num(Reserve_GPION2) gpio_name_to_num(Reserve_GPION3)                  \
-			gpio_name_to_num(FM_P12V_E1S_1_EN) gpio_name_to_num(FM_P12V_E1S_2_EN)      \
-				gpio_name_to_num(IRQ_INA230_E1S_3_ALERT_N)                         \
+			gpio_name_to_num(FM_P12V_E1S_2_EN) gpio_name_to_num(FM_P12V_E1S_1_EN)      \
+				gpio_name_to_num(IRQ_INA230_E1S_0_ALERT_N)                         \
 					gpio_name_to_num(FM_CLKBUF_EN)
 #define name_gpioO                                                                                 \
-	gpio_name_to_num(FM_P12V_E1S_0_EN) gpio_name_to_num(IRQ_INA230_E1S_0_ALERT_N)              \
-		gpio_name_to_num(IRQ_INA230_E1S_1_ALERT_N)                                         \
-			gpio_name_to_num(IRQ_INA230_E1S_2_ALERT_N)                                 \
+	gpio_name_to_num(FM_P12V_E1S_3_EN) gpio_name_to_num(IRQ_INA230_E1S_3_ALERT_N)              \
+		gpio_name_to_num(IRQ_INA230_E1S_2_ALERT_N)                                         \
+			gpio_name_to_num(IRQ_INA230_E1S_1_ALERT_N)                                 \
 				gpio_name_to_num(Reserve_GPIOO4) gpio_name_to_num(Reserve_GPIOO5)  \
 					gpio_name_to_num(Reserve_GPIOO6)                           \
 						gpio_name_to_num(Reserve_GPIOO7)
@@ -99,13 +99,13 @@ uint8_t get_gpio_conf(uint32_t pin);
 	gpio_name_to_num(Reserve_GPIOP0) gpio_name_to_num(Reserve_GPIOP1)                          \
 		gpio_name_to_num(Reserve_GPIOP2) gpio_name_to_num(Reserve_GPIOP3)                  \
 			gpio_name_to_num(Reserve_GPIOP4) gpio_name_to_num(Reserve_GPIOP5)          \
-				gpio_name_to_num(CLKBUF_E1S_0_OE_N)                                \
-					gpio_name_to_num(CLKBUF_E1S_1_OE_N)
+				gpio_name_to_num(CLKBUF_E1S_3_OE_N)                                \
+					gpio_name_to_num(CLKBUF_E1S_2_OE_N)
 // GPIOQ5 hardware not define
 #define name_gpioQ                                                                                 \
-	gpio_name_to_num(CLKBUF_E1S_2_OE_N) gpio_name_to_num(CLKBUF_E1S_3_OE_N)                    \
-		gpio_name_to_num(FM_P3V3_E1S_0_SW_EN) gpio_name_to_num(FM_P3V3_E1S_1_SW_EN)        \
-			gpio_name_to_num(FM_P3V3_E1S_2_SW_EN) gpio_name_to_num(Reserve_GPIOQ5)     \
+	gpio_name_to_num(CLKBUF_E1S_1_OE_N) gpio_name_to_num(CLKBUF_E1S_0_OE_N)                    \
+		gpio_name_to_num(FM_P3V3_E1S_3_SW_EN) gpio_name_to_num(FM_P3V3_E1S_2_SW_EN)        \
+			gpio_name_to_num(FM_P3V3_E1S_1_SW_EN) gpio_name_to_num(Reserve_GPIOQ5)     \
 				gpio_name_to_num(Reserve_GPIOQ6) gpio_name_to_num(Reserve_GPIOQ7)
 #define name_gpioR                                                                                 \
 	gpio_name_to_num(Reserve_GPIOR0) gpio_name_to_num(Reserve_GPIOR1)                          \

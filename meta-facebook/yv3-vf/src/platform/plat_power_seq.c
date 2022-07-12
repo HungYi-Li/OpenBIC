@@ -51,14 +51,8 @@ uint8_t fm_p3v3_sw_en(uint8_t idx, uint8_t val)
 
 	if (pin == 0xFF)
 		return 1;
-	//If value is want to set to enable(1) set GPIO direction to input (0).
-	//Else if input pin want to set to disable(0), set GPIO value to 0 and then set GPIO direction to output (1).
-	if (val) {
-		gpio_conf(pin, 0);
-	} else {
-		gpio_set(pin, val);
-		gpio_conf(pin, 1);
-	}
+
+	gpio_set(pin, val);
 
 	return 0;
 }
@@ -74,20 +68,8 @@ uint8_t fm_p12v_sw_en(uint8_t idx, uint8_t val)
 	if (pin == 0xFF)
 		return 1;
 
-	if (get_e1s_hsc_config() != CONFIG_HSC_BYPASS)
-		gpio_set(pin, val);
-	else {
-		//If value is want to set to enable(1) set GPIO direction to input (0).
-		//Else if input pin want to set to disable(0), set GPIO value to 0 and then set GPIO direction to output (1).
-		if (val) {
-			gpio_conf(pin, 0);
-		} else {
-			gpio_set(pin, val);
-			gpio_conf(pin, 1);
-		}
+	gpio_set(pin, val);
 
-		dev_pwrgd_handler(idx);
-	}
 	return 0;
 }
 

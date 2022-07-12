@@ -123,3 +123,8 @@ bool is_m2_sen_readable(uint8_t sen_num)
 
 	return (m2_pwrgd(idx) && get_dev_pwrgd(idx)) ? true : false;
 }
+
+uint8_t exchange_m2_idx(uint8_t idx) // exchange m2 idx 0/1/2/3 to 3/2/1/0
+{
+	return ((M2_IDX_E_MAX - 1) - idx);
+}

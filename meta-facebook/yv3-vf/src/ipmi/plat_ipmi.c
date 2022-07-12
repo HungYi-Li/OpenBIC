@@ -102,7 +102,7 @@ void OEM_1S_GET_SET_M2(ipmi_msg *msg)
 		return;
 	}
 
-	if (msg->data_len != 1) {
+	if (msg->data_len != 2) {
 		msg->data_len = 0;
 		msg->completion_code = CC_INVALID_LENGTH;
 		return;
@@ -133,7 +133,7 @@ void OEM_1S_GET_SET_M2(ipmi_msg *msg)
 
 		if (!dev) {
 			/* get all m2 device status */
-			uint16_t *tmp = (uint16_t *)msg->data;
+			uint16_t *tmp = (uint16_t *)(msg->data + 1);
 			uint8_t i;
 
 			*tmp = 0;

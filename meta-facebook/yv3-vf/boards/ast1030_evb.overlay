@@ -112,16 +112,6 @@
 	};
 };
 
-&spi1 {
-	status = "okay";
-};
-
-&spi1_cs0 {
-	status = "okay";
-	spi-max-buswidth = <4>;
-	spi-max-frequency = <50000000>;
-};
-
 &uart5 {
 	current-speed = <57600>;
 };

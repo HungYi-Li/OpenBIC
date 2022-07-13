@@ -79,7 +79,10 @@ void delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t arg
 	job.fn = tmp_func;
 	job.delay_ms = delay_time;
 
-	add_work(&job);
+	if (add_work(&job) != 1) {
+		printf("%s() add_work fail!\n", __func__);
+		free(item);
+	}
 }
 
 void work_function(void *func, uint32_t arg1, uint32_t arg2)

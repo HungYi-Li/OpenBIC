@@ -123,5 +123,6 @@
 #define SENSOR_NUM_INA231_VOL_M2F (PREFIX_M2F | SUFFIX_INA231_VOL)
 #define SENSOR_NUM_NVME_TEMP_M2F (PREFIX_M2F | SUFFIX_NVME_TEMP)
 
-uint8_t load_sensor_config(void);
+uint8_t plat_get_config_size();
+void load_sensor_config(void);
 #endif

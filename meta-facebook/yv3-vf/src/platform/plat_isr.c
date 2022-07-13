@@ -134,9 +134,11 @@ void prsnt_int_handler(uint32_t idx, uint32_t arg1)
 {
 	const uint8_t is_prsnt = m2_prsnt(idx);
 
+	/* reserve for gpio debounce can't work
 	if (!ignore_noise(idx, 10)) {
 		return;
 	}
+	*/
 	m2_presen_evt(idx, is_prsnt);
 
 	uint8_t val = DEV_PWR_CTRL | DEV_PRSNT_SET | DEV_PCIE_RST | DEV_CHK_DISABLE |

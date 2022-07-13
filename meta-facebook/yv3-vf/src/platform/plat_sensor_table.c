@@ -24,7 +24,7 @@ sensor_cfg plat_sensor_config[] = {
 	  NULL },
 
 	/*
-		E1S respin doesn't have hsc, add to SDR but not sensor
+		E1S respin doesn't have smbus for hsc, add to SDR but not sensor
  	*/
 
 	// Voltage

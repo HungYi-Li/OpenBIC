@@ -372,6 +372,7 @@ bool pal_load_gpio_config(void)
 
 #define REG_GPIO_BASE 0x7e780000
 #define NUM_OF_GROUP 6
+#define PCLK 50000000 //50MHz
 uint32_t E1S_GPIO_GROUP_REG_ACCESS[NUM_OF_GROUP] = {
 	REG_GPIO_BASE + 0x00, /* GPIO_A/B/C/D Data Value Register */
 	REG_GPIO_BASE + 0x20, /* GPIO_E/F/G/H Data Value Register */
@@ -381,13 +382,41 @@ uint32_t E1S_GPIO_GROUP_REG_ACCESS[NUM_OF_GROUP] = {
 	REG_GPIO_BASE + 0x88 /* GPIO_U Data Value Register */
 };
 
+uint32_t E1S_GPIO_DEBOUNCE_SETTING[NUM_OF_GROUP] = {
+	REG_GPIO_BASE + 0x40, /* GPIO_A/B/C/D Debounce Setting #1 */
+	REG_GPIO_BASE + 0x48, /* GPIO_E/F/G/H Debounce Setting #1 */
+	REG_GPIO_BASE + 0xB0, /* GPIO_I/J/K/L Debounce Setting #1 */
+	REG_GPIO_BASE + 0x100, /* GPIO_M/N/O/P Debounce Setting #1 */
+	REG_GPIO_BASE + 0x130, /* GPIO_Q/R/S/T Debounce Setting #1 */
+	REG_GPIO_BASE + 0x160 /* GPIO_U Debounce Setting #1 */
+};
+
 uint8_t get_gpio_conf(uint32_t pin)
 {
 	uint32_t g_dir = sys_read32(E1S_GPIO_GROUP_REG_ACCESS[pin / 32] + 0x4);
 	return (g_dir & BIT(pin % 32));
 }
 
-void set_gpio_debounce(uint32_t pin, uint32_t debounce_time) // debounce_time(ms)
+// only setting register#1
+void set_gpio_debounce(uint32_t *pin, uint8_t pin_number,
+		       uint32_t debounce_time) // debounce_time(ms)
 {
-	//TBD
+	uint32_t debounce_pin[NUM_OF_GROUP] = { 0 };
+	uint8_t group, offset, i;
+	for (i = 0; i < pin_number; i++) {
+		uint32_t *p = pin + i;
+		group = *p / 32;
+		offset = *p % 32;
+
+		debounce_pin[group] |= (1 << offset);
+	}
+
+	for (i = 0; i < NUM_OF_GROUP; i++) {
+		if (!debounce_pin[i]) {
+			sys_write32(debounce_pin[i], E1S_GPIO_DEBOUNCE_SETTING[i]);
+		}
+	}
+
+	uint32_t time_value = (debounce_time / 1000) * PCLK;
+	sys_write32(time_value, REG_GPIO_BASE + 0x54); // debounce time setting#2
 }

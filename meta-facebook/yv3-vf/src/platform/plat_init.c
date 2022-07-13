@@ -9,12 +9,17 @@
 #include "plat_isr.h"
 #include "plat_power_seq.h"
 #include "plat_led.h"
+#include "plat_gpio.h"
+
+uint32_t gpio_debounce_table[] = { FM_PRSNT_E1S_0_N, FM_PRSNT_E1S_1_N, FM_PRSNT_E1S_2_N,
+				   FM_PRSNT_E1S_3_N };
 
 void pal_pre_init()
 {
 	init_platform_config();
 	init_e1s_config();
 	init_worker(); // init util_worker
+	set_gpio_debounce(gpio_debounce_table, ARRAY_SIZE(gpio_debounce_table), 10);
 }
 
 void pal_set_sys_status()

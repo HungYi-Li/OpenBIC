@@ -11,6 +11,7 @@
 #include "plat_gpio.h"
 #include "plat_m2.h"
 
+#include "ipmi.h"
 #include "plat_util.h"
 
 typedef struct {

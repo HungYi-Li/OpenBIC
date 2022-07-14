@@ -1782,8 +1782,8 @@ uint8_t plat_get_sdr_size()
 	return ARRAY_SIZE(plat_sdr_table);
 }
 
-uint8_t load_sdr_table(void)
+void load_sdr_table(void)
 {
 	memcpy(full_sdr_table, plat_sdr_table, sizeof(plat_sdr_table));
-	return (sizeof(plat_sdr_table) / sizeof(plat_sdr_table[0]));
+	sdr_count = ARRAY_SIZE(plat_sdr_table);
 };

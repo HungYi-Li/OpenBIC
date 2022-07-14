@@ -40,6 +40,6 @@
 #define HSC_T_SEN_FACTOR_EXP_RB 0x00
 
 uint8_t plat_get_sdr_size();
-uint8_t load_sdr_table(void);
+void load_sdr_table(void);
 
 #endif

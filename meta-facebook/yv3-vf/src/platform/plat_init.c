@@ -14,7 +14,6 @@
 uint32_t gpio_debounce_table[] = { FM_PRSNT_E1S_0_N, FM_PRSNT_E1S_1_N, FM_PRSNT_E1S_2_N,
 				   FM_PRSNT_E1S_3_N };
 
-
 SCU_CFG scu_cfg[] = {
 	//register    value
 	{ 0x7e6e2610, 0x00000100 },
@@ -26,7 +25,7 @@ void pal_pre_init()
 	init_e1s_config();
 	init_worker(); // init util_worker
 	set_gpio_debounce(gpio_debounce_table, ARRAY_SIZE(gpio_debounce_table), 10);
-  scu_init(scu_cfg, sizeof(scu_cfg) / sizeof(SCU_CFG));
+	scu_init(scu_cfg, ARRAY_SIZE(scu_cfg));
 }
 
 K_WORK_DELAYABLE_DEFINE(up_1sec_handler, BICup1secTickHandler);
@@ -35,11 +34,6 @@ K_WORK_DELAYABLE_DEFINE(up_5sec_handler, BICup5secTickHandler);
 void pal_set_sys_status()
 {
 	pwr_related_pin_init();
-
-	uint8_t i;
-	for (i = M2_IDX_E_A; i < M2_IDX_E_MAX; i++) {
-		pcie_sw_en_int_handler_m2x(i);
-	}
 
 	SSDLEDInit();
 

@@ -52,12 +52,6 @@ void power_en_int_handler(void)
 	}
 }
 
-#define PCIE_SW_EN_INT_HANDLER_M2(dev, DEV)                                                        \
-	void pcie_sw_en_int_handler_m2##dev(void)                                                  \
-	{                                                                                          \
-		work_function(pcie_sw_en_int_handler_m2x, M2_IDX_E_##DEV, 0);                      \
-	}
-
 #define PWRGD_HANDLER_M2(dev, DEV)                                                                 \
 	void pwrgd_handler_m2##dev(void)                                                           \
 	{                                                                                          \

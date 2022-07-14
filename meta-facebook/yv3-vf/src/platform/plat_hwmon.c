@@ -14,17 +14,6 @@
 
 #include "plat_hwmon.h"
 
-void pcie_sw_en_int_handler_m2x(uint8_t idx)
-{
-	/* system is power off, shutdown device */
-	if (!gpio_get(FM_POWER_EN)) {
-		m2_dev_power_switch(idx, 0);
-		return;
-	}
-
-	m2_dev_power_switch(idx, 0);
-}
-
 static void init_dev_prsnt_status(void)
 {
 	uint8_t i;

@@ -3,6 +3,7 @@
 
 #define PLATFORM_NAME "yv3"
 #define PROJECT_NAME "vernalfall"
+#define IANA_ID 0x009C9C // same as ti
 #define DEVICE_ID 0x00
 #define DEVICE_REVISION 0x80
 /*

@@ -139,7 +139,7 @@ void check_dc_off_process(void)
 	uint8_t i;
 
 	for (i = 0; i < M2_IDX_E_MAX; i++) {
-		if (!get_fm_p12v_sw_en(i))
+		if (get_fm_p12v_sw_en(i))
 			break;
 	}
 
@@ -276,7 +276,7 @@ void dev_pwrgd_handler(uint8_t idx)
 	if (pin == 0xFF)
 		return;
 
-	if (!get_fm_p12v_sw_en(idx)) {
+	if (get_fm_p12v_sw_en(idx)) {
 		delay_function(1000, set_sensor_pwrgd_1s, idx, 0);
 	} else {
 		sensor_pwrgd_1s[idx] = 0;

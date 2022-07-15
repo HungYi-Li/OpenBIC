@@ -18,7 +18,7 @@
 
 #define INA231_POWER_REG 0x03
 #define INA231_BUS_VOLTAGE_REG 0x02
-#define NVME_TEMP_REG 0x03
+#define NVME_TEMP_REG 0x00
 
 /* ISL28022 ReadType define region start */
 #define ISL28022_CONFIG_REG 0

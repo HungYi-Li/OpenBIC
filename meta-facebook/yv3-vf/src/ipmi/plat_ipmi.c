@@ -20,7 +20,7 @@
 #define DRIVE_PWR_OFF_BY_12V_3V3 8 /* power off/on device by 12V/3V3 */
 #define DRIVE_PWR_ON_BY_12V_3V3 9
 
-void OEM_1S_GET_CARD_TYPE(ipmi_msg *msg)
+void OEM_1S_GET_BOARD_ID(ipmi_msg *msg)
 {
 	if (msg == NULL) {
 		printf("%s failed due to parameter *msg is NULL\n", __func__);

@@ -7,6 +7,8 @@
 #include "plat_ipmb.h"
 #include "plat_sensor_table.h"
 
+#define HSC_SENSOR 0
+
 SDR_Full_sensor plat_sdr_table[] = {
 	{
 		/***********************************/
@@ -70,68 +72,70 @@ SDR_Full_sensor plat_sdr_table[] = {
 		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
 		"E1S Outlet Temp",
 	},
-	// {
-	// 	/***********************************/
-	// 	/* HSC Temperature,                */
-	// 	/***********************************/
-	// 	0x00,
-	// 	0x00, // record ID
-	// 	IPMI_SDR_VER_15, // SDR ver
-	// 	IPMI_SDR_FULL_SENSOR, // record type
-	// 	IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
+#if HSC_SENSOR
+	{
+		/***********************************/
+		/* HSC Temperature,                */
+		/***********************************/
+		0x00,
+		0x00, // record ID
+		IPMI_SDR_VER_15, // SDR ver
+		IPMI_SDR_FULL_SENSOR, // record type
+		IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
 
-	// 	SELF_I2C_ADDRESS << 1, // owner id
-	// 	0x00, // owner lun
-	// 	SENSOR_NUM_T_HSC, // sensor number
+		SELF_I2C_ADDRESS << 1, // owner id
+		0x00, // owner lun
+		SENSOR_NUM_T_HSC, // sensor number
 
-	// 	IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
-	// 	0x01, // entity instance
-	// 	IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
-	// 	IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
-	// 		IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
-	// 		IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
-	// 	IPMI_SDR_SENSOR_TYPE_TEMPERATURE, // sensor type
-	// 	IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
-	// 	0x00, // assert event mask
-	// 	IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
-	// 	0x00, // deassert event mask
-	// 	IPMI_SDR_CMP_RETURN_UCT |
-	// 		IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
-	// 	IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
-	// 	IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
-	// 	0x80, // sensor unit
-	// 	IPMI_SENSOR_UNIT_DEGREE_C, // base unit
-	// 	0x00, // modifier unit
-	// 	IPMI_SDR_LINEAR_LINEAR, // linearization
-	// 	HSC_T_SEN_FACTOR_M, // [7:0] M bits
-	// 	0x00, // [9:8] M bits, tolerance
-	// 	0x00, // [7:0] B bits
-	// 	0x00, // [9:8] B bits, tolerance
-	// 	0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
-	// 	HSC_T_SEN_FACTOR_EXP_RB, // Rexp, Bexp
-	// 	0x00, // analog characteristic
-	// 	0x23, // nominal reading
-	// 	0x00, // normal maximum
-	// 	0x00, // normal minimum
-	// 	0xFF, // sensor maximum reading
-	// 	0x00, // sensor minimum reading
-	// 	0x00, // UNRT
-	// 	0x55, // UCT
-	// 	0x00, // UNCT
-	// 	0x00, // LNRT
-	// 	0x00, // LCT
-	// 	0x00, // LNCT
-	// 	0x00, // positive-going threshold
-	// 	0x00, // negative-going threshold
-	// 	0x00, // reserved
-	// 	0x00, // reserved
-	// 	0x00, // OEM
-	// 	IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
-	// 	"E1S HSC Temp",
-	// },
+		IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
+		0x01, // entity instance
+		IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
+			IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
+			IPMI_SDR_SENSOR_INIT_DEF_EVENT |
+			IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
+		IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
+			IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
+			IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
+		IPMI_SDR_SENSOR_TYPE_TEMPERATURE, // sensor type
+		IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
+		0x00, // assert event mask
+		IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
+		0x00, // deassert event mask
+		IPMI_SDR_CMP_RETURN_UCT |
+			IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
+		IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
+		IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
+		0x80, // sensor unit
+		IPMI_SENSOR_UNIT_DEGREE_C, // base unit
+		0x00, // modifier unit
+		IPMI_SDR_LINEAR_LINEAR, // linearization
+		HSC_T_SEN_FACTOR_M, // [7:0] M bits
+		0x00, // [9:8] M bits, tolerance
+		0x00, // [7:0] B bits
+		0x00, // [9:8] B bits, tolerance
+		0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
+		HSC_T_SEN_FACTOR_EXP_RB, // Rexp, Bexp
+		0x00, // analog characteristic
+		0x23, // nominal reading
+		0x00, // normal maximum
+		0x00, // normal minimum
+		0xFF, // sensor maximum reading
+		0x00, // sensor minimum reading
+		0x00, // UNRT
+		0x55, // UCT
+		0x00, // UNCT
+		0x00, // LNRT
+		0x00, // LCT
+		0x00, // LNCT
+		0x00, // positive-going threshold
+		0x00, // negative-going threshold
+		0x00, // reserved
+		0x00, // reserved
+		0x00, // OEM
+		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
+		"E1S HSC Temp",
+	},
+#endif
 	{
 		/***********************************/
 		/* P12V_AUX,                       */
@@ -194,7 +198,7 @@ SDR_Full_sensor plat_sdr_table[] = {
 		0x00, // reserved
 		0x00, // OEM
 		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
-		"E1S P12V AUX",
+		"E1S P12V_AUX",
 	},
 	{
 		/***********************************/
@@ -216,48 +220,49 @@ SDR_Full_sensor plat_sdr_table[] = {
 			IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
 			IPMI_SDR_SENSOR_INIT_DEF_EVENT |
 			IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
-		IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
-			IPMI_SDR_SENSOR_CAP_EVENT_CTRL_NO, // sensor capabilities
-		IPMI_SDR_SENSOR_TYPE_TEMPERATURE, // sensor type
+		IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
+			IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
+			IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
+		IPMI_SDR_SENSOR_TYPE_VOLTAGE, // sensor type
 		IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
-		0x00, // assert event mask
-		IPMI_SDR_CMP_RETURN_LCT | IPMI_SDR_ASSERT_MASK_UCT_HI |
-			IPMI_SDR_ASSERT_MASK_LCT_LO, // assert threshold reading mask
-		0x00, // deassert event mask
-		IPMI_SDR_CMP_RETURN_UCT | IPMI_SDR_DEASSERT_MASK_UCT_LO |
-			IPMI_SDR_DEASSERT_MASK_LCT_HI, // deassert threshold reading mask
-		0x00, // discrete reading mask/ settable
-		IPMI_SDR_UCT_SETTABLE | IPMI_SDR_LCT_SETTABLE | IPMI_SDR_UCT_READABLE |
-			IPMI_SDR_LCT_READABLE, // threshold mask/ readable threshold mask
+		IPMI_SDR_ASSERT_MASK_LCT_LO, // assert event mask
+		IPMI_SDR_CMP_RETURN_LCT |
+			IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
+		IPMI_SDR_ASSERT_MASK_LCT_LO, // deassert event mask
+		IPMI_SDR_CMP_RETURN_UCT |
+			IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
+		IPMI_SDR_LCT_SETTABLE | IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
+		IPMI_SDR_LCT_SETTABLE |
+			IPMI_SDR_UCT_READABLE, // threshold mask/ readable threshold mask
 		0x00, // sensor unit
 		IPMI_SENSOR_UNIT_VOL, // base unit
 		0x00, // modifier unit
 		IPMI_SDR_LINEAR_LINEAR, // linearization
-		0x19, // [7:0] M bits
+		ADC_12V_SEN_FACTOR_M, // [7:0] M bits
 		0x00, // [9:8] M bits, tolerance
 		0x00, // [7:0] B bits
 		0x00, // [9:8] B bits, tolerance
 		0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
-		0xD0, // Rexp, Bexp
+		ADC_12V_SEN_FACTOR_RB, // Rexp, Bexp
 		0x00, // analog characteristic
-		0x00, // nominal reading
-		0x00, // normal maximum
-		0x00, // normal minimum
-		0x00, // sensor maximum reading
+		0xBB, // nominal reading
+		0xCA, // normal maximum
+		0x98, // normal minimum
+		0xFF, // sensor maximum reading
 		0x00, // sensor minimum reading
-		0xE2, // UNRT
-		0xDE, // UCT
-		0xDC, // UNCT
-		0xA6, // LNRT
-		0xB2, // LCT
-		0xB4, // LNCT
+		0x00, // UNRT
+		ADC_12V_UCT, // UCT
+		0x00, // UNCT
+		0x00, // LNRT
+		ADC_12V_LCT, // LCT
+		0x00, // LNCT
 		0x00, // positive-going threshold
 		0x00, // negative-going threshold
 		0x00, // reserved
 		0x00, // reserved
 		0x00, // OEM
 		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
-		"BB_P5V_STBY",
+		"E1S P12V_EDGE",
 	},
 	{
 		/***********************************/
@@ -321,72 +326,74 @@ SDR_Full_sensor plat_sdr_table[] = {
 		0x00, // reserved
 		0x00, // OEM
 		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
-		"E1S P3V3 AUX",
+		"E1S P3V3_AUX",
 	},
-	// {
-	// 	/***********************************/
-	// 	/* HSC INPUT VOLTAGE               */
-	// 	/***********************************/
-	// 	0x00,
-	// 	0x00, // record ID
-	// 	IPMI_SDR_VER_15, // SDR ver
-	// 	IPMI_SDR_FULL_SENSOR, // record type
-	// 	IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
+#if HSC_SENSOR
+	{
+		/***********************************/
+		/* HSC INPUT VOLTAGE               */
+		/***********************************/
+		0x00,
+		0x00, // record ID
+		IPMI_SDR_VER_15, // SDR ver
+		IPMI_SDR_FULL_SENSOR, // record type
+		IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
 
-	// 	SELF_I2C_ADDRESS << 1, // owner id
-	// 	0x00, // owner lun
-	// 	SENSOR_NUM_V_HSC_IN, // sensor number
+		SELF_I2C_ADDRESS << 1, // owner id
+		0x00, // owner lun
+		SENSOR_NUM_V_HSC_IN, // sensor number
 
-	// 	IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
-	// 	0x01, // entity instance
-	// 	IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
-	// 	IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
-	// 		IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
-	// 		IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
-	// 	IPMI_SDR_SENSOR_TYPE_VOLTAGE, // sensor type
-	// 	IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
-	// 	IPMI_SDR_ASSERT_MASK_LCT_LO, // assert event mask
-	// 	IPMI_SDR_CMP_RETURN_LCT |
-	// 		IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
-	// 	IPMI_SDR_DEASSERT_MASK_LCT_LO, // deassert event mask
-	// 	IPMI_SDR_CMP_RETURN_UCT |
-	// 		IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
-	// 	IPMI_SDR_LCT_READABLE | IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
-	// 	IPMI_SDR_LCT_SETTABLE |
-	// 		IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
-	// 	0x00, // sensor unit
-	// 	IPMI_SENSOR_UNIT_VOL, // base unit
-	// 	0x00, // modifier unit
-	// 	IPMI_SDR_LINEAR_LINEAR, // linearization
-	// 	HSC_VIN_SEN_FACTOR_M, // [7:0] M bits
-	// 	0x00, // [9:8] M bits, tolerance
-	// 	0x00, // [7:0] B bits
-	// 	0x00, // [9:8] B bits, tolerance
-	// 	0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
-	// 	HSC_VIN_SEN_FACTOR_EXP_RB, // Rexp, Bexp
-	// 	0x00, // analog characteristic
-	// 	0x23, // nominal reading
-	// 	0xF0, // normal maximum
-	// 	0xBC, // normal minimum
-	// 	0xFF, // sensor maximum reading
-	// 	0x00, // sensor minimum reading
-	// 	0x00, // UNRT
-	// 	0xDC, // UCT
-	// 	0x00, // UNCT
-	// 	0x00, // LNRT
-	// 	0xB4, // LCT
-	// 	0x00, // LNCT
-	// 	0x00, // positive-going threshold
-	// 	0x00, // negative-going threshold
-	// 	0x00, // reserved
-	// 	0x00, // reserved
-	// 	0x00, // OEM
-	// 	IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
-	// 	"E1S HSC VIN",
-	// },
+		IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
+		0x01, // entity instance
+		IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
+			IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
+			IPMI_SDR_SENSOR_INIT_DEF_EVENT |
+			IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
+		IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
+			IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
+			IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
+		IPMI_SDR_SENSOR_TYPE_VOLTAGE, // sensor type
+		IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
+		IPMI_SDR_ASSERT_MASK_LCT_LO, // assert event mask
+		IPMI_SDR_CMP_RETURN_LCT |
+			IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
+		IPMI_SDR_DEASSERT_MASK_LCT_LO, // deassert event mask
+		IPMI_SDR_CMP_RETURN_UCT |
+			IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
+		IPMI_SDR_LCT_READABLE | IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
+		IPMI_SDR_LCT_SETTABLE |
+			IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
+		0x00, // sensor unit
+		IPMI_SENSOR_UNIT_VOL, // base unit
+		0x00, // modifier unit
+		IPMI_SDR_LINEAR_LINEAR, // linearization
+		HSC_VIN_SEN_FACTOR_M, // [7:0] M bits
+		0x00, // [9:8] M bits, tolerance
+		0x00, // [7:0] B bits
+		0x00, // [9:8] B bits, tolerance
+		0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
+		HSC_VIN_SEN_FACTOR_EXP_RB, // Rexp, Bexp
+		0x00, // analog characteristic
+		0x23, // nominal reading
+		0xF0, // normal maximum
+		0xBC, // normal minimum
+		0xFF, // sensor maximum reading
+		0x00, // sensor minimum reading
+		0x00, // UNRT
+		0xDC, // UCT
+		0x00, // UNCT
+		0x00, // LNRT
+		0xB4, // LCT
+		0x00, // LNCT
+		0x00, // positive-going threshold
+		0x00, // negative-going threshold
+		0x00, // reserved
+		0x00, // reserved
+		0x00, // OEM
+		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
+		"E1S HSC VIN",
+	},
+#endif
 	{
 		/***********************************/
 		/* ADC_12V_DEV0,                   */
@@ -899,130 +906,132 @@ SDR_Full_sensor plat_sdr_table[] = {
 		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
 		"E1S 3V3_ADC_DEV3",
 	},
-	// {
-	// 	/**********************/
-	// 	/* HSC OUTPUT CURRENT */
-	// 	/**********************/
-	// 	0x00,
-	// 	0x00, // record ID
-	// 	IPMI_SDR_VER_15, // SDR ver
-	// 	IPMI_SDR_FULL_SENSOR, // record type
-	// 	IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
+#if HSC_SENSOR
+	{
+		/**********************/
+		/* HSC OUTPUT CURRENT */
+		/**********************/
+		0x00,
+		0x00, // record ID
+		IPMI_SDR_VER_15, // SDR ver
+		IPMI_SDR_FULL_SENSOR, // record type
+		IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
 
-	// 	SELF_I2C_ADDRESS << 1, // owner id
-	// 	0x00, // owner lun
-	// 	SENSOR_NUM_I_HSC_OUT, // sensor number
+		SELF_I2C_ADDRESS << 1, // owner id
+		0x00, // owner lun
+		SENSOR_NUM_I_HSC_OUT, // sensor number
 
-	// 	IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
-	// 	0x01, // entity instance
-	// 	IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
-	// 	IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
-	// 		IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
-	// 		IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
-	// 	IPMI_SDR_SENSOR_TYPE_CURRENT, // sensor type
-	// 	IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
-	// 	0x00, // assert event mask
-	// 	IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
-	// 	0x00, // deassert event mask
-	// 	IPMI_SDR_CMP_RETURN_UCT |
-	// 		IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
-	// 	IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
-	// 	IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
-	// 	0x00, // sensor unit
-	// 	IPMI_SENSOR_UNIT_AMP, // base unit
-	// 	0x00, // modifier unit
-	// 	IPMI_SDR_LINEAR_LINEAR, // linearization
-	// 	HSC_IOUT_SEN_FACTOR_M, // [7:0] M bits
-	// 	0x00, // [9:8] M bits, tolerance
-	// 	0x00, // [7:0] B bits
-	// 	0x00, // [9:8] B bits, tolerance
-	// 	0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
-	// 	HSC_IOUT_SEN_FACTOR_EXP_RB, // Rexp, Bexp
-	// 	0x00, // analog characteristic
-	// 	0x23, // nominal reading
-	// 	0xCC, // normal maximum
-	// 	0x00, // normal minimum
-	// 	0xFF, // sensor maximum reading
-	// 	0x00, // sensor minimum reading
-	// 	0x00, // UNRT
-	// 	0xFA, // UCT
-	// 	0x00, // UNCT
-	// 	0x00, // LNRT
-	// 	0x00, // LCT
-	// 	0x00, // LNCT
-	// 	0x00, // positive-going threshold
-	// 	0x00, // negative-going threshold
-	// 	0x00, // reserved
-	// 	0x00, // reserved
-	// 	0x00, // OEM
-	// 	IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
-	// 	"E1S HSC IOUT",
-	// },
-	// {
-	// 	/*********************/
-	// 	/* HSC INPUT POWER   */
-	// 	/*********************/
-	// 	0x00,
-	// 	0x00, // record ID
-	// 	IPMI_SDR_VER_15, // SDR ver
-	// 	IPMI_SDR_FULL_SENSOR, // record type
-	// 	IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
+		IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
+		0x01, // entity instance
+		IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
+			IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
+			IPMI_SDR_SENSOR_INIT_DEF_EVENT |
+			IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
+		IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
+			IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
+			IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
+		IPMI_SDR_SENSOR_TYPE_CURRENT, // sensor type
+		IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
+		0x00, // assert event mask
+		IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
+		0x00, // deassert event mask
+		IPMI_SDR_CMP_RETURN_UCT |
+			IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
+		IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
+		IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
+		0x00, // sensor unit
+		IPMI_SENSOR_UNIT_AMP, // base unit
+		0x00, // modifier unit
+		IPMI_SDR_LINEAR_LINEAR, // linearization
+		HSC_IOUT_SEN_FACTOR_M, // [7:0] M bits
+		0x00, // [9:8] M bits, tolerance
+		0x00, // [7:0] B bits
+		0x00, // [9:8] B bits, tolerance
+		0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
+		HSC_IOUT_SEN_FACTOR_EXP_RB, // Rexp, Bexp
+		0x00, // analog characteristic
+		0x23, // nominal reading
+		0xCC, // normal maximum
+		0x00, // normal minimum
+		0xFF, // sensor maximum reading
+		0x00, // sensor minimum reading
+		0x00, // UNRT
+		0xFA, // UCT
+		0x00, // UNCT
+		0x00, // LNRT
+		0x00, // LCT
+		0x00, // LNCT
+		0x00, // positive-going threshold
+		0x00, // negative-going threshold
+		0x00, // reserved
+		0x00, // reserved
+		0x00, // OEM
+		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
+		"E1S HSC IOUT",
+	},
+	{
+		/*********************/
+		/* HSC INPUT POWER   */
+		/*********************/
+		0x00,
+		0x00, // record ID
+		IPMI_SDR_VER_15, // SDR ver
+		IPMI_SDR_FULL_SENSOR, // record type
+		IPMI_SDR_FULL_SENSOR_MIN_LEN, // size of struct
 
-	// 	SELF_I2C_ADDRESS << 1, // owner id
-	// 	0x00, // owner lun
-	// 	SENSOR_NUM_P_HSC_IN, // sensor number
+		SELF_I2C_ADDRESS << 1, // owner id
+		0x00, // owner lun
+		SENSOR_NUM_P_HSC_IN, // sensor number
 
-	// 	IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
-	// 	0x01, // entity instance
-	// 	IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_EVENT |
-	// 		IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
-	// 	IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
-	// 		IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
-	// 		IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
-	// 	0x0B, // sensor type
-	// 	IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
-	// 	0x00, // assert event mask
-	// 	IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
-	// 	0x00, // deassert event mask
-	// 	IPMI_SDR_CMP_RETURN_UCT |
-	// 		IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
-	// 	IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
-	// 	IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
-	// 	0x00, // sensor unit
-	// 	IPMI_SENSOR_UNIT_WATT, // base unit
-	// 	0x00, // modifier unit
-	// 	IPMI_SDR_LINEAR_LINEAR, // linearization
-	// 	HSC_PIN_SEN_FACTOR_M, // [7:0] M bits
-	// 	0x00, // [9:8] M bits, tolerance
-	// 	0x00, // [7:0] B bits
-	// 	0x00, // [9:8] B bits, tolerance
-	// 	0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
-	// 	HSC_PIN_SEN_FACTOR_EXP_RB, // Rexp, Bexp
-	// 	0x00, // analog characteristic
-	// 	0x23, // nominal reading
-	// 	0xA0, // normal maximum
-	// 	0x00, // normal minimum
-	// 	0xFF, // sensor maximum reading
-	// 	0x00, // sensor minimum reading
-	// 	0x00, // UNRT
-	// 	0xFA, // UCT
-	// 	0x00, // UNCT
-	// 	0x00, // LNRT
-	// 	0x00, // LCT
-	// 	0x00, // LNCT
-	// 	0x00, // positive-going threshold
-	// 	0x00, // negative-going threshold
-	// 	0x00, // reserved
-	// 	0x00, // reserved
-	// 	0x00, // OEM
-	// 	IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
-	// 	"E1S HSC PIN",
-	// },
+		IPMI_SDR_ENTITY_ID_SYS_BOARD, // entity id
+		0x01, // entity instance
+		IPMI_SDR_SENSOR_INIT_SCAN | IPMI_SDR_SENSOR_INIT_EVENT |
+			IPMI_SDR_SENSOR_INIT_THRESHOLD | IPMI_SDR_SENSOR_INIT_TYPE |
+			IPMI_SDR_SENSOR_INIT_DEF_EVENT |
+			IPMI_SDR_SENSOR_INIT_DEF_SCAN, // sensor init
+		IPMI_SDR_SENSOR_CAP_AUTO_RE_ARM | IPMI_SDR_SENSOR_CAP_HYSTERESIS_NO |
+			IPMI_SDR_SENSOR_CAP_THRESHOLD_RW |
+			IPMI_SDR_SENSOR_CAP_EVENT_CTRL_BIT, // sensor capabilities
+		0x0B, // sensor type
+		IPMI_SDR_EVENT_TYPE_THRESHOLD, // event/reading type
+		0x00, // assert event mask
+		IPMI_SDR_ASSERT_MASK_UCT_HI, // assert threshold reading mask
+		0x00, // deassert event mask
+		IPMI_SDR_CMP_RETURN_UCT |
+			IPMI_SDR_DEASSERT_MASK_UCT_HI, // deassert threshold reading mask
+		IPMI_SDR_UCT_READABLE, // discrete reading mask/ settable
+		IPMI_SDR_UCT_SETTABLE, // threshold mask/ readable threshold mask
+		0x00, // sensor unit
+		IPMI_SENSOR_UNIT_WATT, // base unit
+		0x00, // modifier unit
+		IPMI_SDR_LINEAR_LINEAR, // linearization
+		HSC_PIN_SEN_FACTOR_M, // [7:0] M bits
+		0x00, // [9:8] M bits, tolerance
+		0x00, // [7:0] B bits
+		0x00, // [9:8] B bits, tolerance
+		0x00, // [7:4] accuracy , [3:2] accuracy exp, [1:0] sensor direction
+		HSC_PIN_SEN_FACTOR_EXP_RB, // Rexp, Bexp
+		0x00, // analog characteristic
+		0x23, // nominal reading
+		0xA0, // normal maximum
+		0x00, // normal minimum
+		0xFF, // sensor maximum reading
+		0x00, // sensor minimum reading
+		0x00, // UNRT
+		0xFA, // UCT
+		0x00, // UNCT
+		0x00, // LNRT
+		0x00, // LCT
+		0x00, // LNCT
+		0x00, // positive-going threshold
+		0x00, // negative-going threshold
+		0x00, // reserved
+		0x00, // reserved
+		0x00, // OEM
+		IPMI_SDR_STRING_TYPE_ASCII_8, // ID len, should be same as "size of struct"
+		"E1S HSC PIN",
+	},
+#endif
 	{
 		/*********************/
 		/* INA231 POWER M.2A */

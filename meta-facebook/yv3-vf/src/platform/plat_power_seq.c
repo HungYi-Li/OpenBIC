@@ -69,6 +69,7 @@ uint8_t fm_p12v_sw_en(uint8_t idx, uint8_t val)
 		return 1;
 
 	gpio_set(pin, val);
+	dev_pwrgd_handler(idx);
 
 	return 0;
 }

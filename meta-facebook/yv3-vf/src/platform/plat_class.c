@@ -6,6 +6,8 @@ static uint8_t system_board_id = 0;
 static uint8_t e1s_hsc_config = 0;
 static uint8_t e1s_adc_config = 0;
 
+#define VERNAL_FALLS_BOARD_TYPE 0x07
+
 void init_sys_board_id(uint8_t board_id)
 {
 	switch (board_id) {
@@ -16,7 +18,7 @@ void init_sys_board_id(uint8_t board_id)
 		system_board_id = WAIMANO_FALLS;
 		break;
 	case VERNAL_FALLS:
-		system_board_id = VERNAL_FALLS;
+		system_board_id = VERNAL_FALLS_BOARD_TYPE;
 		break;
 	default:
 		printf("[%s] input board id not support: 0x%x\n", __func__, board_id);

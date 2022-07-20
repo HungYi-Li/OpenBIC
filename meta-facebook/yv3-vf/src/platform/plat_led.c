@@ -13,7 +13,12 @@ static uint8_t AmberLEDStatus[M2_IDX_E_MAX];
 	{                                                                                          \
 		SSDLEDSet(M2_IDX_E_##DEV, SSD_START_BLINK);                                        \
 	}                                                                                          \
-	K_TIMER_DEFINE(ssdled_blink_##DEV, SSD_LED_blink_Handler_##DEV, NULL);
+	void SSD_LED_stop_blink_Handler_##DEV(struct k_timer *timer)                               \
+	{                                                                                          \
+		SSDLEDSet(M2_IDX_E_##DEV, pre_state[M2_IDX_E_##DEV]);                              \
+	}                                                                                          \
+	K_TIMER_DEFINE(ssdled_blink_##DEV, SSD_LED_blink_Handler_##DEV,                            \
+		       SSD_LED_stop_blink_Handler_##DEV);
 
 SSD_LED_BLINK_INIT(A); // SSD 0
 SSD_LED_BLINK_INIT(B); // SSD 1
@@ -53,6 +58,8 @@ void SSDLEDSet(uint8_t idx, uint8_t behaviour)
 		gpio_set(pin, !gpio_get(pin));
 		break;
 	default:
+		printf("%s() [%d] error LED  %d behaviour %d!\n", __func__, __LINE__, idx,
+		       behaviour);
 		break;
 	}
 }
@@ -67,8 +74,10 @@ uint8_t SSDLEDCtrl(uint8_t idx, uint8_t ctrl)
 {
 	if (idx >= M2_IDX_E_MAX)
 		return 1;
-	if (ctrl > 0x03)
+	if (ctrl > 0x03) {
+		printf("%s() [%d] error LED  %d control %d!\n", __func__, __LINE__, idx, ctrl);
 		return 1;
+	}
 
 	// void SSD_LEDThread(void)
 	AmberLEDStatus[idx] = ctrl;
@@ -82,12 +91,10 @@ uint8_t SSDLEDCtrl(uint8_t idx, uint8_t ctrl)
 		SSDLEDSet(idx, ctrl);
 		break;
 	case SSD_START_BLINK:
-		k_timer_start(idx_to_ssdled_timer(idx), K_SECONDS(500), K_SECONDS(500));
+		k_timer_start(idx_to_ssdled_timer(idx), K_MSEC(500), K_MSEC(500));
 		break;
 	case SSD_STOP_BLINK:
-		SSDLEDSet(idx, pre_state[idx]);
-		break;
-	default:
+		stop_blink_timer(idx);
 		break;
 	}
 

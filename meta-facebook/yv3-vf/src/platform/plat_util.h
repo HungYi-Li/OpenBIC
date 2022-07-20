@@ -7,8 +7,6 @@
 
 #define E1S_BOARD_TYPE 0x07
 
-/*  */
-
 typedef enum {
 	NOSIE_E_M2PRSNT_A = 0,
 	NOSIE_E_M2PRSNT_B,
@@ -32,16 +30,3 @@ void add_sel(uint8_t sensor_type, uint8_t event_type, uint8_t sensor_number, uin
 	     uint8_t event_data2, uint8_t event_data3);
 uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type);
 void deassert_func_handler(DEASSERT_CHK_TYPE_E idx);
-
-/*
-#define DEASSERT_FUNC_HANDLER(DEV)                                                                 \
-	k_timer_stop_t deassert_func_handler_##DEV(void)                                           \
-	{                                                                                          \
-		deassert_func_handler(DEASSERT_CHK_TYPE_E_INA231_ALERT_##DEV);                     \
-	}                                                                                          \
-	K_TIMER_DEFINE(deassert_func_timer_##DEV, NULL, deassert_func_handler_##DEV);
-
-DEASSERT_FUNC_HANDLER(0);
-DEASSERT_FUNC_HANDLER(1);
-DEASSERT_FUNC_HANDLER(2);
-DEASSERT_FUNC_HANDLER(3);*/

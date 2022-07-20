@@ -110,14 +110,15 @@ void OEM_1S_GET_SET_M2(ipmi_msg *msg)
 
 	msg->completion_code = CC_INVALID_DATA_FIELD;
 	msg->data_len = 0;
-	uint8_t val;
+	uint8_t val, dev, is_on;
 	uint8_t func = msg->data[1];
 	uint8_t change_dev = msg->data[0] - 1; // Shift for 0 based
 	change_dev = exchange_m2_idx(change_dev); // exchange m2 idx
 
-	if (func == DRIVE_PWR_OFF || func == DRIVE_PWR_ON) { /* 1: power on. 0: power off. */
-		uint8_t dev = change_dev;
-
+	switch (func) {
+	case DRIVE_PWR_OFF:
+	case DRIVE_PWR_ON:
+		dev = change_dev;
 		val = DEV_CHK_DISABLE | DEV_PWR_CTRL | DEV_PCIE_RST |
 		      ((func == 1) ? DEV_PWR_ON : 0);
 
@@ -127,9 +128,10 @@ void OEM_1S_GET_SET_M2(ipmi_msg *msg)
 		device_all_power_set(dev, val);
 
 		msg->completion_code = CC_SUCCESS;
+		break;
 
-	} else if (func == DRIVE_GET_STATE) {
-		uint8_t dev = msg->data[0];
+	case DRIVE_GET_STATE:
+		dev = msg->data[0];
 
 		if (!dev) {
 			/* get all m2 device status */
@@ -153,10 +155,14 @@ void OEM_1S_GET_SET_M2(ipmi_msg *msg)
 			msg->data_len += 1;
 			msg->completion_code = CC_SUCCESS;
 		}
-	} else if (func == DRIVE_PWR_OFF_BY_PWRDIS || func == DRIVE_PWR_ON_BY_PWRDIS ||
-		   func == DRIVE_PWR_OFF_ALL || func == DRIVE_PWR_ON_ALL) {
-		const uint8_t dev = change_dev;
-		const uint8_t is_on = (func == DRIVE_PWR_ON_BY_PWRDIS || func == DRIVE_PWR_ON_ALL);
+		break;
+
+	case DRIVE_PWR_OFF_BY_PWRDIS:
+	case DRIVE_PWR_ON_BY_PWRDIS:
+	case DRIVE_PWR_OFF_ALL:
+	case DRIVE_PWR_ON_ALL:
+		dev = change_dev;
+		is_on = (func == DRIVE_PWR_ON_BY_PWRDIS || func == DRIVE_PWR_ON_ALL);
 
 		if (dev >= M2_IDX_E_MAX)
 			return;
@@ -168,9 +174,12 @@ void OEM_1S_GET_SET_M2(ipmi_msg *msg)
 		device_all_power_set(dev, val);
 
 		msg->completion_code = CC_SUCCESS;
-	} else if (func == DRIVE_PWR_OFF_BY_12V_3V3 || func == DRIVE_PWR_ON_BY_12V_3V3) {
-		const uint8_t dev = change_dev;
-		const uint8_t is_on = (func == DRIVE_PWR_ON_BY_12V_3V3);
+		break;
+
+	case DRIVE_PWR_OFF_BY_12V_3V3:
+	case DRIVE_PWR_ON_BY_12V_3V3:
+		dev = change_dev;
+		is_on = (func == DRIVE_PWR_ON_BY_12V_3V3);
 
 		if (dev >= M2_IDX_E_MAX)
 			return;
@@ -180,5 +189,6 @@ void OEM_1S_GET_SET_M2(ipmi_msg *msg)
 		device_all_power_set(dev, val);
 
 		msg->completion_code = CC_SUCCESS;
+		break;
 	}
 }

@@ -20,7 +20,7 @@
  *  FIRMWARE_REVISION_2
  *    Count of release firmware at each stage.
  */
-#define FIRMWARE_REVISION_1 0x04
+#define FIRMWARE_REVISION_1 0x47
 #define FIRMWARE_REVISION_2 0x01
 #define IPMI_VERSION 0x02
 #define ADDITIONAL_DEVICE_SUPPORT 0xBF
@@ -29,7 +29,7 @@
 
 #define BIC_FW_YEAR_MSB 0x20
 #define BIC_FW_YEAR_LSB 0x22
-#define BIC_FW_WEEK 0x19
+#define BIC_FW_WEEK 0x29
 #define BIC_FW_VER 0x01
 #define BIC_FW_platform_0 0x76 // char: v
 #define BIC_FW_platform_1 0x66 // char: f

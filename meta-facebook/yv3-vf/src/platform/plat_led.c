@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "plat_led.h"
 #include "plat_gpio.h"
 #include "plat_util.h"

@@ -4,5 +4,5 @@
 #define I2C_ADDR_MB_CPLD (0x1E >> 1)
 
 void BICup1secTickHandler();
-void BICup5secTickHandler();
+void BICup5sec_handler(uint8_t ctrl);
 int8_t mb_cpld_dev_prsnt_set(uint32_t idx, uint32_t val);

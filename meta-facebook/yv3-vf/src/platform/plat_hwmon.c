@@ -28,7 +28,8 @@ void BICup1secTickHandler()
 	init_dev_prsnt_status();
 }
 
-void BICup5secTickHandler()
+// BICup5secTickHandler
+void BICup5secTickHandler(void)
 {
 	/* For E1S re-spin ADC */
 	if (get_e1s_adc_config() == CONFIG_ADC_INA231) {
@@ -37,6 +38,28 @@ void BICup5secTickHandler()
 	} else if (get_e1s_adc_config() == CONFIG_ADC_ISL28022) {
 		e1s_isl28022_init();
 	}
+}
+void BICup5sec_work(struct k_work *work)
+{
+	if (!work)
+		return;
+	BICup5secTickHandler();
+}
+K_WORK_DEFINE(bic_up_5s, BICup5sec_work);
+void BICup5sec_timer(struct k_timer *timer)
+{
+	if (!timer)
+		return;
+	k_work_submit(&bic_up_5s);
+}
+K_TIMER_DEFINE(bic_up_5s_timer, BICup5sec_timer, NULL);
+
+void BICup5sec_handler(uint8_t ctrl) // 1: start, 0:stop
+{
+	if (ctrl)
+		k_timer_start(&bic_up_5s_timer, K_SECONDS(5), K_SECONDS(5));
+	else
+		k_timer_stop(&bic_up_5s_timer);
 }
 
 int8_t mb_cpld_dev_prsnt_set(uint32_t idx, uint32_t val)

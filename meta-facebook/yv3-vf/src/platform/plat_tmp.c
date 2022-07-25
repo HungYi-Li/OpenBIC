@@ -7,6 +7,7 @@
 
 #include "plat_m2.h"
 #include "plat_sensor_table.h"
+#include "plat_hwmon.h"
 
 #define CEIL(A) (uint8_t)(((uint8_t)A == A) ? A : A + 1)
 
@@ -50,7 +51,7 @@ bool INA231_config_read(uint8_t i2c_bus, uint8_t slave_addr, uint8_t offset, uin
 	if (i2c_master_read(&msg, retry)) {
 		return false;
 	}
-
+	memcpy(buf, &msg.data[0], msg.rx_len);
 	return true;
 }
 
@@ -59,11 +60,16 @@ uint8_t ina231Request(uint8_t bus, uint8_t addr, uint8_t type, uint8_t *data)
 	uint8_t retry = 3;
 
 	while (retry != 0) {
+		printf("%s() [%d] bus: %d, type: %x, retry: %d, \n", __func__, __LINE__, bus, type,
+		       retry);
 		if (INA231_config_write(bus, addr, type, data, 2) == true) {
 			uint8_t buf[2] = { 0 };
 
 			if (INA231_config_read(bus, addr, type, buf, 2) == true) {
-				if (!memcmp(data, buf, 2))
+				uint16_t read_data = buf[0] | buf[1] << 8;
+				uint16_t write_data = data[0] | data[1] << 8;
+				read_data &= write_data;
+				if (!memcmp(&read_data, &write_data, sizeof(uint16_t)))
 					return 1;
 			}
 		}
@@ -85,14 +91,14 @@ uint8_t plat_ina231_init(uint8_t bus, uint8_t addr, uint8_t max_pwr)
 	val[0] = tmp >> 8;
 	val[1] = tmp & 0xFF;
 	if (!ina231Request(bus, addr, type, val))
-		return 0;
+		return 1;
 
 	/* Enable POL flag */
 	type = 0x06;
 	val[0] = 0x08;
 	val[1] = 0x08;
 	if (!ina231Request(bus, addr, type, val))
-		return 0;
+		return 1;
 
 	/* config calibration register for ina230 power reading */
 	type = 0x05;
@@ -101,28 +107,27 @@ uint8_t plat_ina231_init(uint8_t bus, uint8_t addr, uint8_t max_pwr)
 	val[1] = 0x00;
 
 	if (!ina231Request(bus, addr, type, val))
-		return 0;
+		return 1;
 
 	type = 0x00;
 	val[0] = 0x4E;
 	val[1] = 0x4F;
 	if (!ina231Request(bus, addr, type, val))
-		return 0;
+		return 1;
 
-	return 1;
+	return 0;
 }
 
 void e1s_ina231_init(void)
 {
 	uint8_t i;
 	for (i = M2_IDX_E_A; i < M2_IDX_E_MAX; i++) {
-		if (!plat_ina231_init(m2_idx2bus(i), I2C_ADDR_M2_INA231, 16)) {
+		if (plat_ina231_init(m2_idx2bus(i), I2C_ADDR_M2_INA231, 16)) {
 			printf("!! config dev%d ina231 failed !!\n", i);
 			return;
 		}
 	}
-
-	return;
+	BICup5sec_handler(0);
 }
 
 /* isl28022 */
@@ -165,7 +170,7 @@ bool ISL28022_config_read(uint8_t i2c_bus, uint8_t slave_addr, uint8_t offset, u
 	if (i2c_master_read(&msg, retry)) {
 		return false;
 	}
-
+	memcpy(buf, &msg.data[0], msg.rx_len);
 	return true;
 }
 
@@ -246,6 +251,5 @@ void e1s_isl28022_init(void)
 			return;
 		}
 	}
-
-	return;
+	BICup5sec_handler(0);
 }

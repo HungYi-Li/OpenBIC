@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "util_worker.h"
+#include "ipmi.h"
 
 #include "plat_sensor_table.h"
 #include "plat_class.h"
@@ -10,7 +11,7 @@
 #include "plat_power_seq.h"
 #include "plat_led.h"
 #include "plat_gpio.h"
-#include "ipmi.h"
+
 uint32_t gpio_debounce_table[] = { FM_PRSNT_E1S_0_N, FM_PRSNT_E1S_1_N, FM_PRSNT_E1S_2_N,
 				   FM_PRSNT_E1S_3_N };
 
@@ -29,7 +30,6 @@ void pal_pre_init()
 }
 
 K_WORK_DELAYABLE_DEFINE(up_1sec_handler, BICup1secTickHandler);
-K_WORK_DELAYABLE_DEFINE(up_5sec_handler, BICup5secTickHandler);
 
 void pal_set_sys_status()
 {
@@ -38,9 +38,9 @@ void pal_set_sys_status()
 	SSDLEDInit();
 
 	// BIC up 1 sec handler
-	k_work_schedule(&up_1sec_handler, K_SECONDS(1000));
+	k_work_schedule(&up_1sec_handler, K_SECONDS(1));
 	// BIC up 5 sec handler
-	k_work_schedule(&up_5sec_handler, K_SECONDS(5000));
+	BICup5sec_handler(1);
 }
 
 #define DEF_PROJ_GPIO_PRIORITY 78

@@ -14,6 +14,8 @@
 
 #include "plat_hwmon.h"
 
+uint8_t ina230_sensor_table[] = {}
+
 static void init_dev_prsnt_status(void)
 {
 	uint8_t i;
@@ -29,6 +31,7 @@ void BICup1secTickHandler()
 }
 
 // BICup5secTickHandler
+#if 0
 void BICup5secTickHandler(void)
 {
 	/* For E1S re-spin ADC */
@@ -39,11 +42,12 @@ void BICup5secTickHandler(void)
 		e1s_isl28022_init();
 	}
 }
+#endif
 void BICup5sec_work(struct k_work *work)
 {
 	if (!work)
 		return;
-	BICup5secTickHandler();
+	//BICup5secTickHandler();
 }
 K_WORK_DEFINE(bic_up_5s, BICup5sec_work);
 void BICup5sec_timer(struct k_timer *timer)

@@ -543,3 +543,8 @@ bool check_is_sensor_ready()
 {
 	return is_sensor_ready_flag;
 }
+
+uint8_t get_sensor_config_number(void)
+{
+	return sensor_config_count;
+}

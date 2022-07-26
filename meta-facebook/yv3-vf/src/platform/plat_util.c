@@ -86,13 +86,6 @@ void delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t arg
 	}
 }
 
-void work_function(void *func, uint32_t arg1, uint32_t arg2)
-{
-	if (!func)
-		return;
-	delay_function(0, func, arg1, arg2);
-}
-
 void free_timer(struct k_work *work)
 {
 	if (!work)

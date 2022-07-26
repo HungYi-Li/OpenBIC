@@ -52,12 +52,6 @@ void power_en_int_handler(void)
 	}
 }
 
-#define PWRGD_HANDLER_M2(dev, DEV)                                                                 \
-	void pwrgd_handler_m2##dev(void)                                                           \
-	{                                                                                          \
-		work_function(pwrgd_handler_m2##dev, M2_IDX_E_##DEV, 0);                           \
-	}
-
 #define INA231_ALERT_HANDLER_M2(DEV)                                                               \
 	void ina231_alert_handler_m2_dev##DEV(void)                                                \
 	{                                                                                          \
@@ -138,7 +132,7 @@ void prsnt_int_handler(uint32_t idx, uint32_t arg1)
 	uint8_t val = DEV_PWR_CTRL | DEV_PRSNT_SET | DEV_PCIE_RST | DEV_CHK_DISABLE |
 		      (is_prsnt ? DEV_PWR_ON : 0);
 
-	work_function(device_all_power_set, (uint32_t)idx, (uint32_t)val);
+	device_all_power_set((uint8_t)idx, val);
 }
 
 #define DEV_PRSNT_HANDLER(idx)                                                                     \

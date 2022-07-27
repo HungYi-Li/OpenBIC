@@ -154,7 +154,7 @@ struct k_timer *idx_to_noise_timer(NOSIE_E idx)
 	       (idx == NOSIE_E_M2PRSNT_B) ? &ignore_noise_timer_B :
 	       (idx == NOSIE_E_M2PRSNT_C) ? &ignore_noise_timer_C :
 	       (idx == NOSIE_E_M2PRSNT_D) ? &ignore_noise_timer_D :
-						  NULL;
+					    NULL;
 }
 uint8_t ignore_noise(uint8_t idx, uint32_t m_sec) // 1: exec, 0: noise
 {
@@ -203,26 +203,33 @@ assert_func_t *assert_type_to_deassert_list(DEASSERT_CHK_TYPE_E assert_type)
 	return NULL;
 }
 
-uint8_t deassert_chk(uint32_t assert_type, uint32_t arg2)
+static void deassert_chk(void *unused, uint32_t assert_type)
 {
+	ARG_UNUSED(unused);
+
 	if (assert_type >= DEASSERT_CHK_TYPE_E_MAX)
-		return 1;
+		return;
 
 	assert_func_t *p = assert_type_to_deassert_list(assert_type);
 	if (!p) {
 		printf("%s() can't find deassert list!\n", __func__);
-		return 1;
+		return;
 	}
 
-	if (!gpio_get(p->gpio_num))
-		return 1;
+	if (!gpio_get(p->gpio_num)) {
+		/* the deassert event should be checked after 5 seconds */
+		worker_job job = { 0 };
+		job.delay_ms = 5000;
+		job.fn = deassert_chk;
+		job.ui32_arg = (uint32_t)assert_type;
+		add_work(&job);
+		return;
+	}
 
 	add_sel(IPMI_OEM_SENSOR_TYPE_OEM, IPMI_OEM_EVENT_TYPE_DEASSART, SENSOR_NUM_SYS_STA,
 		IPMI_EVENT_OFFSET_SYS_INA231_PWR_ALERT, E1S_BOARD_TYPE, assert_type);
 
 	gpio_interrupt_conf(p->gpio_num, p->int_type);
-
-	return 0;
 }
 
 uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type) // 0:success
@@ -244,7 +251,11 @@ uint8_t assert_func(DEASSERT_CHK_TYPE_E assert_type) // 0:success
 	add_sel(IPMI_OEM_SENSOR_TYPE_OEM, IPMI_EVENT_TYPE_SENSOR_SPEC, SENSOR_NUM_SYS_STA,
 		IPMI_EVENT_OFFSET_SYS_INA231_PWR_ALERT, E1S_BOARD_TYPE, assert_type);
 
-	add_clock(assert_type, 0, deassert_chk, NULL, 5000, 5000);
+	worker_job job = { 0 };
+	job.delay_ms = 5000;
+	job.fn = deassert_chk;
+	job.ui32_arg = (uint32_t)assert_type;
+	add_work(&job);
 
 	return 0;
 }

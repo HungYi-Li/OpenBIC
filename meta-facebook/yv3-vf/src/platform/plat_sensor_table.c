@@ -11,7 +11,6 @@
 #include "plat_m2.h"
 
 #define CONFIG_ISL69260 false
-bool stby_access(uint8_t sensor_number);
 
 sensor_cfg plat_sensor_config[] = {
 	/* number,                  type,       port,      address,      offset,
@@ -28,7 +27,7 @@ sensor_cfg plat_sensor_config[] = {
  	*/
 
 	// Voltage
-	{ SENSOR_NUM_V_12_AUX, sensor_dev_ast_adc, ADC_PORT1, NONE, NONE, stby_access, 704, 100,
+	{ SENSOR_NUM_V_12_AUX, sensor_dev_ast_adc, ADC_PORT1, NONE, NONE, dc_access, 704, 100,
 	  SAMPLE_COUNT_DEFAULT, POLL_TIME_DEFAULT, ENABLE_SENSOR_POLLING, 0, SENSOR_INIT_STATUS,
 	  NULL, NULL, NULL, NULL, &adc_asd_init_args[0] },
 	{ SENSOR_NUM_V_12_EDGE, sensor_dev_ast_adc, ADC_PORT2, NONE, NONE, stby_access, 704, 100,

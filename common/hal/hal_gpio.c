@@ -103,6 +103,21 @@ uint8_t gpio_conf(uint8_t gpio_num, int dir)
 				  (gpio_num % GPIO_GROUP_SIZE), dir);
 }
 
+int gpio_debounce_conf(uint8_t gpio_num, uint8_t debounce_en)
+{
+	if (gpio_num >= TOTAL_GPIO_NUM) {
+		printf("debounce invalid gpio num %d", gpio_num);
+		return -EINVAL;
+	}
+
+	if (gpio_cfg[gpio_num].direction == GPIO_OUTPUT) {
+		printf("gpio %x is output pin, cannot set debounce!\n", gpio_num);
+		return -ENOTSUP;
+	}
+
+	return gpio_conf(gpio_num, GPIO_INPUT | ((debounce_en) ? GPIO_INT_DEBOUNCE : 1));
+}
+
 int gpio_get(uint8_t gpio_num)
 {
 	if (gpio_num >= TOTAL_GPIO_NUM) {

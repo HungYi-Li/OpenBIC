@@ -65,25 +65,15 @@ void delay_function(uint32_t delay_time, void *func, uint32_t arg1, uint32_t arg
 	if (!func)
 		return;
 
-	worker_job job;
-	delay_item_t *item = malloc(sizeof(delay_item_t)); // free args by tmp_func()
-	if (!item) {
-		printf("%s() malloc fail!\n", __func__);
-		return;
-	}
+	worker_job job = { 0 };
 
-	item->arg1 = arg1;
-	item->arg2 = arg2;
-	item->fn = func;
-
-	job.ptr_arg = item;
-	job.fn = tmp_func;
+	job.fn = func;
+	job.ptr_arg = (void *)arg1;
+	job.ui32_arg = arg2;
 	job.delay_ms = delay_time;
 
-	if (add_work(&job) != 1) {
+	if (add_work(&job) != 1)
 		printf("%s() add_work fail!\n", __func__);
-		free(item);
-	}
 }
 
 void free_timer(struct k_work *work)
@@ -154,7 +144,7 @@ struct k_timer *idx_to_noise_timer(NOSIE_E idx)
 	       (idx == NOSIE_E_M2PRSNT_B) ? &ignore_noise_timer_B :
 	       (idx == NOSIE_E_M2PRSNT_C) ? &ignore_noise_timer_C :
 	       (idx == NOSIE_E_M2PRSNT_D) ? &ignore_noise_timer_D :
-					    NULL;
+						  NULL;
 }
 uint8_t ignore_noise(uint8_t idx, uint32_t m_sec) // 1: exec, 0: noise
 {

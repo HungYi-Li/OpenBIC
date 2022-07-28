@@ -13,9 +13,6 @@
 #include "plat_led.h"
 #include "plat_gpio.h"
 
-uint32_t gpio_debounce_table[] = { FM_PRSNT_E1S_0_N, FM_PRSNT_E1S_1_N, FM_PRSNT_E1S_2_N,
-				   FM_PRSNT_E1S_3_N };
-
 SCU_CFG scu_cfg[] = {
 	//register    value
 	{ 0x7e6e2610, 0x00000100 },
@@ -32,7 +29,7 @@ void pal_pre_init()
 	init_platform_config();
 	init_e1s_config();
 	init_worker(); // init util_worker
-	set_gpio_debounce(gpio_debounce_table, ARRAY_SIZE(gpio_debounce_table), 10);
+	set_gpio_debounce();
 	scu_init(scu_cfg, ARRAY_SIZE(scu_cfg));
 }
 

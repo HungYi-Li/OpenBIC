@@ -107,5 +107,6 @@ int gpio_init(const struct device *args);
 int gpio_interrupt_conf(uint8_t, gpio_flags_t);
 uint8_t gpio_conf(uint8_t gpio_num, int dir);
 void scu_init(SCU_CFG cfg[], size_t size);
+int gpio_debounce_conf(uint8_t gpio_num, uint8_t debounce_en);
 
 #endif

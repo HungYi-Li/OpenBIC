@@ -397,26 +397,11 @@ uint8_t get_gpio_conf(uint32_t pin)
 	return (g_dir & BIT(pin % 32));
 }
 
-// only setting register#1
-void set_gpio_debounce(uint32_t *pin, uint8_t pin_number,
-		       uint32_t debounce_time) // debounce_time(ms)
+void set_gpio_debounce(void)
 {
-	uint32_t debounce_pin[NUM_OF_GROUP] = { 0 };
-	uint8_t group, offset, i;
-	for (i = 0; i < pin_number; i++) {
-		uint32_t *p = pin + i;
-		group = *p / 32;
-		offset = *p % 32;
+	const uint8_t debounce_table[] = { FM_PRSNT_E1S_0_N, FM_PRSNT_E1S_1_N, FM_PRSNT_E1S_2_N,
+					   FM_PRSNT_E1S_3_N };
 
-		debounce_pin[group] |= (1 << offset);
-	}
-
-	for (i = 0; i < NUM_OF_GROUP; i++) {
-		if (!debounce_pin[i]) {
-			sys_write32(debounce_pin[i], E1S_GPIO_DEBOUNCE_SETTING[i]);
-		}
-	}
-
-	uint32_t time_value = (debounce_time / 1000) * PCLK;
-	sys_write32(time_value, REG_GPIO_BASE + 0x54); // debounce time setting#2
+	for (int i = 0; i < ARRAY_SIZE(debounce_table); i++)
+		gpio_debounce_conf(debounce_table[i], 1);
 }

@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "libipmi.h"
+#include "power_status.h"
 
 #include "plat_m2.h"
 #include "plat_gpio.h"
@@ -38,6 +39,8 @@ void pwrgd_p12v_aux_int_handler(void)
 
 void power_en_int_handler(void)
 {
+	set_DC_status(FM_POWER_EN);
+	set_DC_on_delayed_status();
 	/* disable 12V switch first when the system power off */
 	if (!gpio_get(FM_POWER_EN)) {
 		uint8_t i;

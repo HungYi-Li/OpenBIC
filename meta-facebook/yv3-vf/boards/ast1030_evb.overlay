@@ -19,6 +19,10 @@
 				 			 &pinctrl_adc15_default>;
 };
 
+&gpio0 {
+	aspeed,deb-interval-us = <1000>;
+};
+
 &gpio0_a_d {
 	aspeed,persist-maps = <0xBEF00000>;
 };

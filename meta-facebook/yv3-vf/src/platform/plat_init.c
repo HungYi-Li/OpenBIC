@@ -3,6 +3,7 @@
 #include "util_worker.h"
 #include "ipmi.h"
 #include "sensor.h"
+#include "power_status.h"
 
 #include "plat_sensor_table.h"
 #include "plat_class.h"
@@ -69,6 +70,9 @@ void pal_set_sys_status()
 	pwr_related_pin_init();
 
 	SSDLEDInit();
+
+	set_DC_status(FM_POWER_EN);
+	set_DC_on_delayed_status();
 
 	// BIC up 1 sec handler
 	k_work_schedule(&up_1sec_handler, K_SECONDS(1));

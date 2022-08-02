@@ -30,7 +30,7 @@ void pal_pre_init()
 	init_platform_config();
 	init_e1s_config();
 	init_worker(); // init util_worker
-	set_gpio_debounce();
+	//set_gpio_debounce();
 	scu_init(scu_cfg, ARRAY_SIZE(scu_cfg));
 }
 

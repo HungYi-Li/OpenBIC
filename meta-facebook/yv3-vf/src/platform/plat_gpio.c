@@ -369,39 +369,3 @@ bool pal_load_gpio_config(void)
 	memcpy(&gpio_cfg[0], &plat_gpio_cfg[0], sizeof(plat_gpio_cfg));
 	return 1;
 };
-
-#define REG_GPIO_BASE 0x7e780000
-#define NUM_OF_GROUP 6
-#define PCLK 50000000 //50MHz
-uint32_t E1S_GPIO_GROUP_REG_ACCESS[NUM_OF_GROUP] = {
-	REG_GPIO_BASE + 0x00, /* GPIO_A/B/C/D Data Value Register */
-	REG_GPIO_BASE + 0x20, /* GPIO_E/F/G/H Data Value Register */
-	REG_GPIO_BASE + 0x70, /* GPIO_I/J/K/L Data Value Register */
-	REG_GPIO_BASE + 0x78, /* GPIO_M/N/O/P Data Value Register */
-	REG_GPIO_BASE + 0x80, /* GPIO_Q/R/S/T Data Value Register */
-	REG_GPIO_BASE + 0x88 /* GPIO_U Data Value Register */
-};
-
-uint32_t E1S_GPIO_DEBOUNCE_SETTING[NUM_OF_GROUP] = {
-	REG_GPIO_BASE + 0x40, /* GPIO_A/B/C/D Debounce Setting #1 */
-	REG_GPIO_BASE + 0x48, /* GPIO_E/F/G/H Debounce Setting #1 */
-	REG_GPIO_BASE + 0xB0, /* GPIO_I/J/K/L Debounce Setting #1 */
-	REG_GPIO_BASE + 0x100, /* GPIO_M/N/O/P Debounce Setting #1 */
-	REG_GPIO_BASE + 0x130, /* GPIO_Q/R/S/T Debounce Setting #1 */
-	REG_GPIO_BASE + 0x160 /* GPIO_U Debounce Setting #1 */
-};
-
-uint8_t get_gpio_conf(uint32_t pin)
-{
-	uint32_t g_dir = sys_read32(E1S_GPIO_GROUP_REG_ACCESS[pin / 32] + 0x4);
-	return (g_dir & BIT(pin % 32));
-}
-
-void set_gpio_debounce(void)
-{
-	const uint8_t debounce_table[] = { FM_PRSNT_E1S_0_N, FM_PRSNT_E1S_1_N, FM_PRSNT_E1S_2_N,
-					   FM_PRSNT_E1S_3_N };
-
-	for (int i = 0; i < ARRAY_SIZE(debounce_table); i++)
-		gpio_debounce_conf(debounce_table[i], 1);
-}

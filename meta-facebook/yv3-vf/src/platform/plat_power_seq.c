@@ -85,10 +85,7 @@ uint8_t get_fm_p12v_sw_en(uint8_t idx)
 	if (pin == 0xFF)
 		return 0;
 
-	if (get_e1s_hsc_config() == CONFIG_HSC_BYPASS)
-		return get_gpio_conf(pin) ? gpio_get(pin) : 1;
-	else
-		return gpio_get(pin);
+	return gpio_get(pin);
 }
 
 uint8_t clkbuf_oe_en(uint8_t idx, uint8_t val)

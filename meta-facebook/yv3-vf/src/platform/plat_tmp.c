@@ -127,7 +127,6 @@ void e1s_ina231_init(void)
 			return;
 		}
 	}
-	BICup5sec_handler(0);
 }
 
 /* isl28022 */
@@ -251,5 +250,4 @@ void e1s_isl28022_init(void)
 			return;
 		}
 	}
-	BICup5sec_handler(0);
 }

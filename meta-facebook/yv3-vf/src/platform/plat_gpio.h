@@ -4,8 +4,6 @@
 #include "hal_gpio.h"
 
 void gpio_int_default();
-uint8_t get_gpio_conf(uint32_t pin);
-void set_gpio_debounce(void);
 
 // gpio_cfg(chip, number, is_init, direction, status, int_type, int_callback)
 // dedicate gpio A0~A7, B0~B7, C0~C7, D0~D7, E0~E7, total 40 gpios

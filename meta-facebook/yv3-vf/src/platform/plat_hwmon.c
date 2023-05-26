@@ -122,3 +122,21 @@ void adc_upper_bound_polling(struct k_work *work)
 
 	k_work_schedule((struct k_work_delayable *)work, K_SECONDS(1));
 }
+
+void set_exp_pwrgd_pin(void)
+{
+	uint8_t val;
+
+	switch (get_e1s_hsc_config()) {
+	case CONFIG_HSC_ADM1278:
+	case CONFIG_HSC_MAXIN:
+	case CONFIG_HSC_MPS:
+		val = gpio_get(PWRGD_P12V_AUX);
+
+	case CONFIG_HSC_BYPASS:
+	default:
+		val = gpio_get(FM_POWER_EN);
+	}
+
+	gpio_set(PWRGD_EXP_PWROK, val);
+}

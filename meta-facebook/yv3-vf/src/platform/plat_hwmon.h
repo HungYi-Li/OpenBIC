@@ -27,3 +27,4 @@
 void BICup1secTickHandler(struct k_work *work);
 void adc_upper_bound_polling(struct k_work *work);
 int8_t mb_cpld_dev_prsnt_set(uint32_t idx, uint32_t val);
+void set_exp_pwrgd_pin(void);

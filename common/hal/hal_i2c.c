@@ -342,6 +342,22 @@ void i2c_scan(uint8_t bus, uint8_t *target_addr, uint8_t *target_addr_len)
 	}
 }
 
+bool i2c_scan_address(uint8_t bus, uint8_t addr)
+{
+	if (check_i2c_bus_valid(bus) < 0) {
+		LOG_ERR("i2c bus %d is invalid", bus);
+		return false;
+	}
+
+	struct i2c_msg msg;
+
+	/* Send the address to read from */
+	msg.len = 0U;
+	msg.flags = I2C_MSG_WRITE | I2C_MSG_STOP;
+
+	return (i2c_transfer(dev_i2c[bus], &msg, 1, addr) == 0) ? true : false;
+}
+
 void util_init_I2C(void)
 {
 	int status;

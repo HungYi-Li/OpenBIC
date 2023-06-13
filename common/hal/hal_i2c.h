@@ -111,6 +111,7 @@ int i2c_master_read_without_mutex(I2C_MSG *msg, uint8_t retry);
 int i2c_master_write(I2C_MSG *msg, uint8_t retry);
 int i2c_master_write_without_mutex(I2C_MSG *msg, uint8_t retry);
 void i2c_scan(uint8_t bus, uint8_t *target_addr, uint8_t *target_addr_len);
+bool i2c_scan_address(uint8_t bus, uint8_t addr);
 void util_init_I2C(void);
 int check_i2c_bus_valid(uint8_t bus);
 

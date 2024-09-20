@@ -38,15 +38,9 @@ LOG_MODULE_REGISTER(sensor);
 
 #define SENSOR_DRIVE_INIT_DECLARE(name) uint8_t name##_init(sensor_cfg *cfg)
 
-#define SENSOR_DRIVE_TYPE_INIT_MAP(name)                                                           \
-	{                                                                                          \
-		sensor_dev_##name, name##_init                                                     \
-	}
+#define SENSOR_DRIVE_TYPE_INIT_MAP(name) { sensor_dev_##name, name##_init }
 
-#define SENSOR_DRIVE_TYPE_UNUSE(name)                                                              \
-	{                                                                                          \
-		sensor_dev_##name, NULL                                                            \
-	}
+#define SENSOR_DRIVE_TYPE_UNUSE(name) { sensor_dev_##name, NULL }
 
 #define SENSOR_READ_RETRY_MAX 3
 
@@ -926,6 +920,11 @@ bool get_sensor_poll_enable_flag()
 	return sensor_poll_enable_flag;
 }
 
+__weak void plat_sensor_poll_post()
+{
+	return;
+}
+
 void sensor_poll_handler(void *arug0, void *arug1, void *arug2)
 {
 	uint16_t table_index = 0;
@@ -1012,6 +1011,7 @@ void sensor_poll_handler(void *arug0, void *arug1, void *arug2)
 		}
 
 		is_sensor_ready_flag = true;
+		plat_sensor_poll_post();
 		k_msleep(sensor_poll_interval_ms);
 	}
 }

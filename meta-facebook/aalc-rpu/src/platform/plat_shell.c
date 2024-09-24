@@ -24,6 +24,7 @@
 #include "common_i2c_mux.h"
 #include "nct7363.h"
 #include "plat_status.h"
+#include "plat_fsc.h"
 
 LOG_MODULE_REGISTER(plat_shell);
 
@@ -334,6 +335,19 @@ void cmd_status_auto_tune_set(const struct shell *shell, size_t argc, char **arg
 	shell_warn(shell, "set auto tune flag to %d", val);
 }
 
+//fsc
+static void cmd_fsc_debug_enable(const struct shell *shell, size_t argc, char **argv)
+{
+	ARG_UNUSED(shell);
+	ARG_UNUSED(argc);
+	ARG_UNUSED(argv);
+
+	const uint8_t enable = strtoul(argv[1], NULL, 16);
+	shell_warn(shell, "fsc debug enable: %d", enable);
+
+	fsc_debug_set(enable);
+}
+
 // test command
 void cmd_test(const struct shell *shell, size_t argc, char **argv)
 {
@@ -396,6 +410,11 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_status_cmd,
 			       SHELL_CMD(set, &sub_set_status_cmd, "set status flag", NULL),
 			       SHELL_SUBCMD_SET_END);
 
+// fsc
+SHELL_STATIC_SUBCMD_SET_CREATE(sub_fsc_cmd,
+			       SHELL_CMD(debug, NULL, "fsc debug message", cmd_fsc_debug_enable),
+			       SHELL_SUBCMD_SET_END);
+
 /* Sub-command Level 1 of command test */
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_test_cmds, SHELL_CMD(pwm, &sub_pwm_cmd, "set/get pwm command", NULL),
@@ -404,6 +423,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 	SHELL_CMD(nct7363, &sub_nct7363_cmd, "nct7363 debug command", NULL),
 	SHELL_CMD(threshold, &sub_threshold_cmd, "threshold test command", NULL),
 	SHELL_CMD(status, &sub_status_cmd, "status test command", NULL),
+	SHELL_CMD(fsc, &sub_fsc_cmd, "fan speed control command", NULL),
 	SHELL_CMD(test, NULL, "test command", cmd_test), SHELL_SUBCMD_SET_END);
 
 /* Root of command test */

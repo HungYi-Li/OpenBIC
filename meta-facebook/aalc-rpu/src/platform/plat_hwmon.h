@@ -46,4 +46,7 @@ bool pump_setting_set_auto_tune_flag(pump_reset_struct *data, uint8_t bit_val);
 bool modbus_pump_setting_unsupport_function(pump_reset_struct *data, uint8_t bit_val);
 bool set_all_pump_power(bool switch_val);
 bool rpu_remote_power_cycle_function(pump_reset_struct *data, uint8_t bit_val);
+uint8_t get_pump_redundant_switch_time();
+void set_pump_redundant_switch_time(uint8_t day);
+void pump_redundant_enable(uint8_t onoff);
 uint8_t pwm_control(uint8_t group, uint8_t duty);

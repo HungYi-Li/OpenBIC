@@ -348,7 +348,7 @@ static void fsc_thread_handler(void *arug0, void *arug1, void *arug2)
 
 			// set_duty
 			if (zone_p->set_duty)
-				zone_p->set_duty(zone_p->set_duty_arg, duty);
+				zone_p->set_duty(zone_p->set_duty_arg, 70);
 			else
 				LOG_ERR("FSC zone %d set duty function is NULL", i);
 		}

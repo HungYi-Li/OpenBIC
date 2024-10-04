@@ -282,6 +282,7 @@ void pump_redundant_handler_disable(struct k_timer *timer)
 K_TIMER_DEFINE(pump_redundant_timer, pump_redundant_handler, pump_redundant_handler_disable);
 
 static uint8_t pump_redundant_switch_time = 7;
+static bool pump_redundant_debug = false;
 uint8_t get_pump_redundant_switch_time()
 {
 	return pump_redundant_switch_time;
@@ -289,13 +290,16 @@ uint8_t get_pump_redundant_switch_time()
 void set_pump_redundant_switch_time(uint8_t day)
 {
 	pump_redundant_switch_time = day;
+	pump_redundant_debug = (day >= 10) ? true : false;
 }
 void pump_redundant_enable(uint8_t onoff)
 {
 	if (onoff) {
 		if (get_status_flag(STATUS_FLAG_PUMP_REDUNDANT) == PUMP_REDUNDANT_DISABLE)
 			k_timer_start(&pump_redundant_timer, K_NO_WAIT,
-				      K_HOURS(pump_redundant_switch_time * 24)); // how many days
+				      pump_redundant_debug ? K_SECONDS(pump_redundant_switch_time) :
+							     K_HOURS(pump_redundant_switch_time *
+								     24)); // how many days
 	} else {
 		k_timer_stop(&pump_redundant_timer);
 	}

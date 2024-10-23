@@ -153,6 +153,11 @@ uint8_t ads112c_read(sensor_cfg *cfg, int *reading)
 		break;
 	}
 
+	if (cfg->num == 0x69)
+		val = -5.488;
+	else if (cfg->num == 0x6A)
+		val = -1.137;
+
 	sensor_val *sval = (sensor_val *)reading;
 	sval->integer = (int16_t)val & 0xFFFF;
 	sval->fraction = (val - sval->integer) * 1000;

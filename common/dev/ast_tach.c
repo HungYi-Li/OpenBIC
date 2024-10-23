@@ -57,8 +57,8 @@ static uint8_t get_fan_rpm(uint8_t port, int32_t *val)
 
 	ret = sensor_sample_fetch(dev_tach[port]);
 	if (ret < 0) {
-		LOG_ERR("Failed to read FAN%d due to sensor_sample_fetch failed, ret: %d", port,
-			ret);
+		/*LOG_ERR("Failed to read FAN%d due to sensor_sample_fetch failed, ret: %d", port,
+			ret);*/
 		return SENSOR_FAIL_TO_ACCESS;
 	}
 
@@ -89,8 +89,8 @@ uint8_t ast_tach_read(sensor_cfg *cfg, int *reading)
 	switch (cfg->offset) {
 	case AST_TACH_RPM:
 		ret = get_fan_rpm(cfg->port, &ret_val);
-		if (ret != SENSOR_READ_SUCCESS)
-			LOG_ERR("get fan %d rpm fail", cfg->port);
+		/*if (ret != SENSOR_READ_SUCCESS)
+			LOG_ERR("get fan %d rpm fail", cfg->port);*/
 		break;
 	default:
 		LOG_ERR("fan %d method undefined", cfg->port);

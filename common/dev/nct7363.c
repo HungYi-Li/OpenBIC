@@ -151,7 +151,7 @@ bool nct7363_set_duty(sensor_cfg *cfg, uint8_t duty, uint8_t port)
 	msg.data[0] = duty_offset;
 	msg.data[1] = (uint8_t)duty_in_255;
 	if (i2c_master_write(&msg, retry) != 0) {
-		LOG_ERR("set NCT7363_FAN_CTRL_SET_DUTY fail");
+		//LOG_ERR("set NCT7363_FAN_CTRL_SET_DUTY fail");
 		return false;
 	}
 	return true;

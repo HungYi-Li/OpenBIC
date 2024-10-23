@@ -170,8 +170,8 @@ int i2c_master_read(I2C_MSG *msg, uint8_t retry)
 		}
 	}
 
-	if (i > retry)
-		LOG_ERR("I2C %d master read retry reach max with ret %d", msg->bus, ret);
+	/*if (i > retry)
+		LOG_ERR("I2C %d master read retry reach max with ret %d", msg->bus, ret);*/
 
 exit:
 	SAFE_FREE(txbuf);
@@ -224,8 +224,8 @@ int i2c_master_write(I2C_MSG *msg, uint8_t retry)
 			break;
 	}
 
-	if (i > retry)
-		LOG_ERR("I2C %d master write retry reach max with ret %d", msg->bus, ret);
+	/*if (i > retry)
+		LOG_ERR("I2C %d master write retry reach max with ret %d", msg->bus, ret);*/
 
 exit:
 	SAFE_FREE(txbuf);
@@ -289,8 +289,8 @@ int i2c_master_read_without_mutex(I2C_MSG *msg, uint8_t retry)
 		}
 	}
 
-	if (i > retry)
-		LOG_ERR("I2C %d master read retry reach max with ret %d", msg->bus, ret);
+	/*if (i > retry)
+		LOG_ERR("I2C %d master read retry reach max with ret %d", msg->bus, ret);*/
 
 exit:
 	SAFE_FREE(txbuf);
@@ -332,8 +332,8 @@ int i2c_master_write_without_mutex(I2C_MSG *msg, uint8_t retry)
 			break;
 	}
 
-	if (i > retry)
-		LOG_ERR("I2C %d master write retry reach max with ret %d", msg->bus, ret);
+	/*if (i > retry)
+		LOG_ERR("I2C %d master write retry reach max with ret %d", msg->bus, ret);*/
 
 exit:
 	SAFE_FREE(txbuf);

@@ -246,13 +246,13 @@ static uint8_t ctl_pwm_dev(uint8_t index_start, uint8_t index_end, uint8_t duty)
 		if (i == redundant_dev) {
 			// redundant duty 30
 			if (plat_pwm_ctrl(i, (duty ? 30 : 0))) {
-				LOG_ERR("Failed to set PWM device %d redundant duty %d", i, duty);
+				//LOG_ERR("Failed to set PWM device %d redundant duty %d", i, duty);
 				ret = 1;
 				//break;
 			}
 		} else {
 			if (plat_pwm_ctrl(i, duty)) {
-				LOG_ERR("Failed to set PWM device %d duty %d", i, duty);
+				//LOG_ERR("Failed to set PWM device %d duty %d", i, duty);
 				ret = 1;
 				//break;
 			}

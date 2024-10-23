@@ -38,15 +38,9 @@ LOG_MODULE_REGISTER(sensor);
 
 #define SENSOR_DRIVE_INIT_DECLARE(name) uint8_t name##_init(sensor_cfg *cfg)
 
-#define SENSOR_DRIVE_TYPE_INIT_MAP(name)                                                           \
-	{                                                                                          \
-		sensor_dev_##name, name##_init                                                     \
-	}
+#define SENSOR_DRIVE_TYPE_INIT_MAP(name) { sensor_dev_##name, name##_init }
 
-#define SENSOR_DRIVE_TYPE_UNUSE(name)                                                              \
-	{                                                                                          \
-		sensor_dev_##name, NULL                                                            \
-	}
+#define SENSOR_DRIVE_TYPE_UNUSE(name) { sensor_dev_##name, NULL }
 
 #define SENSOR_READ_RETRY_MAX 3
 
@@ -897,8 +891,8 @@ uint8_t get_sensor_reading(sensor_cfg *cfg_table, uint8_t cfg_count, uint8_t sen
 			return cfg->cache_status;
 		default:
 			cfg->cache = SENSOR_FAIL;
-			LOG_ERR("Failed to read sensor value from cache, sensor number: 0x%x, cache status: 0x%x",
-				sensor_num, cfg->cache_status);
+			/*LOG_ERR("Failed to read sensor value from cache, sensor number: 0x%x, cache status: 0x%x",
+				sensor_num, cfg->cache_status);*/
 			return cfg->cache_status;
 		}
 		break;

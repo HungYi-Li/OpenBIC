@@ -220,12 +220,12 @@ void fan_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 	// read back data from reg
 	if (!nct7363_read_back_data(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 				    &pwrgd_read_back_val)) {
-		LOG_ERR("Read fan_board_pwrgd fail, read_back_val: %d", pwrgd_read_back_val);
+		//LOG_ERR("Read fan_board_pwrgd fail, read_back_val: %d", pwrgd_read_back_val);
 		return;
 	}
 
 	if (!nct7363_read_back_data(cfg, NCT7363_GPIO0x_INPUT_PORT_REG_OFFSET, &read_fan_gok)) {
-		LOG_ERR("Read pump_board_pwrgd gpio fail, read_back_val: %d", read_fan_gok);
+		//LOG_ERR("Read pump_board_pwrgd gpio fail, read_back_val: %d", read_fan_gok);
 		return;
 	}
 
@@ -239,17 +239,17 @@ void fan_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 		LOG_DBG("fan THRESHOLD_STATUS_LCR");
 		WRITE_BIT(pwrgd_read_back_val, 0, 0);
 		if (!nct7363_write(cfg, FAN_BOARD_FAULT_PWM_OFFSET, FAN_BOARD_FAULT_PWM_DUTY_50))
-			LOG_ERR("Write fan_board_fault pwm fail");
+			LOG_DBG("Write fan_board_fault pwm fail");
 	} else if (status == THRESHOLD_STATUS_NORMAL) {
 		LOG_DBG("fan THRESHOLD_STATUS_NORMAL");
 		WRITE_BIT(pwrgd_read_back_val, 0, 1);
 		if (!nct7363_write(cfg, FAN_BOARD_FAULT_PWM_OFFSET, FAN_BOARD_FAULT_PWM_DUTY_1))
-			LOG_ERR("Write fan_board_fault pwm fail");
+			LOG_DBG("Write fan_board_fault pwm fail");
 	} else if (status == THRESHOLD_STATUS_NOT_ACCESS) {
 		LOG_DBG("fan THRESHOLD_STATUS_NOT_ACCESS");
 		WRITE_BIT(pwrgd_read_back_val, 0, 0);
 		if (!nct7363_write(cfg, FAN_BOARD_FAULT_PWM_OFFSET, FAN_BOARD_FAULT_PWM_DUTY_100))
-			LOG_ERR("Write fan_board_fault pwm fail");
+			LOG_DBG("Write fan_board_fault pwm fail");
 	} else {
 		LOG_ERR("Unexpected fan_board_tach_status");
 	}
@@ -290,13 +290,13 @@ void pump_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 	uint8_t read_back_val, read_pump_gok;
 	// read back data from reg to write fault gpio
 	if (!nct7363_read_back_data(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET, &read_back_val)) {
-		LOG_ERR("Read pump_board_pwrgd gpio fail, read_back_val: %d", read_back_val);
+		//LOG_ERR("Read pump_board_pwrgd gpio fail, read_back_val: %d", read_back_val);
 		return;
 	}
 
 	// read gok input value
 	if (!nct7363_read_back_data(cfg, NCT7363_GPIO0x_INPUT_PORT_REG_OFFSET, &read_pump_gok)) {
-		LOG_ERR("Read pump_board_pwrgd gpio fail, read_back_val: %d", read_pump_gok);
+		//LOG_ERR("Read pump_board_pwrgd gpio fail, read_back_val: %d", read_pump_gok);
 		return;
 	}
 
@@ -320,7 +320,7 @@ void pump_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 		LOG_DBG("Unexpected pump_board_tach_status");
 
 	if (!nct7363_write(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET, read_back_val))
-		LOG_ERR("Write pump_board_pwrgd gpio fail");
+		LOG_DBG("Write pump_board_pwrgd gpio fail");
 }
 
 /*static bool close_pump_hsc(uint8_t sensor_num)
@@ -946,24 +946,24 @@ void fan_pump_pwrgd_handler(void *arug0, void *arug1, void *arug2)
 			uint8_t read_gok = 0;
 			if (!nct7363_read_back_data(cfg, NCT7363_GPIO0x_INPUT_PORT_REG_OFFSET,
 						    &read_gok))
-				LOG_ERR("Read pump_board_pwrgd gpio fail, read_back_val: %d",
+				LOG_DBG("Read pump_board_pwrgd gpio fail, read_back_val: %d",
 					read_gok);
 
 			uint8_t pwrgd_read_back_val = 0;
 			if (!nct7363_read_back_data(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 						    &pwrgd_read_back_val))
-				LOG_ERR("Thread read val: %d", pwrgd_read_back_val);
+				LOG_DBG("Thread read val: %d", pwrgd_read_back_val);
 
 			if (!(read_gok & BIT(2))) {
 				WRITE_BIT(pwrgd_read_back_val, 0, 0);
 				if (!nct7363_write(cfg, FAN_BOARD_FAULT_PWM_OFFSET,
 						   FAN_BOARD_FAULT_PWM_DUTY_100))
-					LOG_ERR("Write fan_board_fault pwm fail");
+					LOG_DBG("Write fan_board_fault pwm fail");
 			}
 
 			if (!nct7363_write(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 					   pwrgd_read_back_val))
-				LOG_ERR("Write pump_board_pwrgd gpio fail");
+				LOG_DBG("Write pump_board_pwrgd gpio fail");
 		}
 		k_msleep(1000);
 	}

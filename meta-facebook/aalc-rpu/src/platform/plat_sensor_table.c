@@ -1157,7 +1157,7 @@ uint16_t get_sensor_reading_to_modbus_val(uint8_t sensor_num, int8_t exp, int8_t
 					    &reading, GET_FROM_CACHE);
 
 	if (status != SENSOR_READ_4BYTE_ACUR_SUCCESS) {
-		LOG_ERR("0x%02x get sensor cache fail", sensor_num);
+		//LOG_ERR("0x%02x get sensor cache fail", sensor_num);
 		return 0;
 	}
 	sensor_val *sval = (sensor_val *)&reading;
@@ -1179,7 +1179,7 @@ uint8_t get_sensor_reading_to_real_val(uint8_t sensor_num, float *val)
 					    &reading, GET_FROM_CACHE);
 
 	if (status != SENSOR_READ_4BYTE_ACUR_SUCCESS) {
-		LOG_ERR("0x%02x get sensor cache fail", sensor_num);
+		//LOG_ERR("0x%02x get sensor cache fail", sensor_num);
 		return status;
 	}
 

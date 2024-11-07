@@ -1026,7 +1026,7 @@ modbus_command_mapping modbus_command_table[] = {
 	{ MODBUS_BPB_RACK_COOLANT_LEAKAGE_VOLT_V_ADDR, NULL, modbus_get_senser_reading,
 	  SENSOR_NUM_BPB_RACK_COOLANT_LEAKAGE_VOLT_V, 1, -2, 1 },
 	{ MODBUS_AALC_TOTAL_PWR_EXT_W_ADDR, NULL, modbus_get_senser_reading,
-	  PLAT_DEF_SENSOR_TOTAL_PWR, 1, 0, 1 },
+	  SENSOR_NUM_AALC_TOTAL_PWR_W, 1, 0, 1 },
 	{ MODBUS_PUMP_FAN_STATUS_ADDR, NULL, modbus_get_aalc_sensor_status, PUMP_FAN_STATUS, 0, 0,
 	  1 },
 	{ MODBUS_HEX_AIR_THERMOMETER_STATUS_ADDR, NULL, modbus_get_aalc_sensor_status,

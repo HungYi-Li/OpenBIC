@@ -117,6 +117,7 @@ typedef struct {
 
 uint8_t get_fsc_enable_flag(void);
 void set_fsc_enable_flag(uint8_t flag);
+void set_fsc_tbl_enable(uint8_t flag);
 void fsc_init(void);
 void controlFSC(uint8_t action);
 uint8_t fsc_debug_set(uint8_t enable);

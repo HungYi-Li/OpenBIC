@@ -31,6 +31,7 @@
 #include "libutil.h"
 #include "plat_status.h"
 #include "adm1272.h"
+#include "plat_class.h"
 
 #define THRESHOLD_POLL_STACK_SIZE 2048
 #define FAN_PUMP_PWRGD_STACK_SIZE 2048
@@ -210,6 +211,9 @@ bool rpu_ready_recovery()
 	if (pump_fail_check())
 		return false;
 
+	if (!gpio_get(PWRGD_P48V_HSC_LF_R))
+		return false;
+
 	if (get_threshold_status(SENSOR_NUM_BPB_RACK_LEVEL_2))
 		return false;
 
@@ -277,9 +281,7 @@ void hex_fan_failure_do(uint32_t sensor_num, uint32_t status)
 	else
 		set_status_flag(STATUS_FLAG_FAILURE, PUMP_FAIL_TWO_HEX_FAN_FAILURE, 0);
 
-	if (status == THRESHOLD_STATUS_NORMAL)
-		error_log_event(sensor_num, IS_NORMAL_VAL);
-	else if (status == THRESHOLD_STATUS_LCR)
+	if (status == THRESHOLD_STATUS_LCR)
 		error_log_event(sensor_num, IS_ABNORMAL_VAL);
 	else if (status == THRESHOLD_STATUS_UCR)
 		error_log_event(sensor_num, IS_ABNORMAL_VAL);
@@ -471,8 +473,6 @@ void abnormal_temp_do(uint32_t sensor_num, uint32_t status)
 			set_status_flag(STATUS_FLAG_FAILURE, failure_status, 1);
 		}
 	} else if (status == THRESHOLD_STATUS_NORMAL) {
-		if (save_log)
-			error_log_event(sensor_num, IS_NORMAL_VAL);
 		set_status_flag(STATUS_FLAG_FAILURE, failure_status, 0);
 		if (sensor_num == SENSOR_NUM_BPB_RPU_COOLANT_OUTLET_TEMP_C)
 			set_status_flag(STATUS_FLAG_FAILURE,
@@ -506,11 +506,28 @@ void level_sensor_do(uint32_t unused, uint32_t status)
 	}
 }
 
+void rpu_level_sensor_do(uint32_t unused, uint32_t status)
+{
+	// EVT board does not have this level sensor
+	if (get_board_stage() == BOARD_STAGE_EVT)
+		return;
+
+	static bool is_abnormal = false;
+	if (get_threshold_status(SENSOR_NUM_BPB_RPU_LEVEL)) {
+		set_status_flag(STATUS_FLAG_FAILURE, PUMP_FAIL_LOW_RPU_LEVEL, 1);
+		if (!is_abnormal) {
+			is_abnormal = true;
+			error_log_event(SENSOR_NUM_BPB_RACK_LEVEL_2, IS_ABNORMAL_VAL);
+		}
+	} else {
+		is_abnormal = false;
+		set_status_flag(STATUS_FLAG_FAILURE, PUMP_FAIL_LOW_RPU_LEVEL, 0);
+	}
+}
+
 void sensor_log(uint32_t sensor_num, uint32_t status)
 {
-	if (status == THRESHOLD_STATUS_NORMAL)
-		error_log_event(sensor_num, IS_NORMAL_VAL);
-	else if (status == THRESHOLD_STATUS_LCR)
+	if (status == THRESHOLD_STATUS_LCR)
 		error_log_event(sensor_num, IS_ABNORMAL_VAL);
 	else if (status == THRESHOLD_STATUS_UCR)
 		error_log_event(sensor_num, IS_ABNORMAL_VAL);
@@ -620,6 +637,7 @@ sensor_threshold threshold_tbl[] = {
 	  THRESHOLD_ARG0_TABLE_INDEX },
 	{ SENSOR_NUM_BPB_RACK_LEVEL_1, THRESHOLD_ENABLE_LCR, 0.1, 0, level_sensor_do, 0 },
 	{ SENSOR_NUM_BPB_RACK_LEVEL_2, THRESHOLD_ENABLE_LCR, 0.1, 0, level_sensor_do, 0 },
+	{ SENSOR_NUM_BPB_RPU_LEVEL, THRESHOLD_ENABLE_LCR, 0.1, 0, rpu_level_sensor_do, 0 },
 	{ SENSOR_NUM_FAN_PRSNT, THRESHOLD_ENABLE_DISCRETE, 0, 0, fb_prsnt_handle,
 	  THRESHOLD_ARG0_TABLE_INDEX },
 	{ SENSOR_NUM_HEX_EXTERNAL_Y_FILTER, THRESHOLD_ENABLE_UCR, 0, 30, sensor_log,
@@ -922,7 +940,7 @@ static bool set_threshold_status(sensor_threshold *threshold_tbl, float val)
 	if (threshold_tbl->last_status == status)
 		return false;
 
-	LOG_ERR("0x%02x status change: last_status: %d, status: %d, val: %d\n",
+	LOG_WRN("0x%02x status change: last_status: %d, status: %d, val: %d\n",
 		threshold_tbl->sensor_num, threshold_tbl->last_status, status, (int)val);
 
 	threshold_tbl->last_status = status;

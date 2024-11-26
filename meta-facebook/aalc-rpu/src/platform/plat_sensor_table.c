@@ -45,7 +45,7 @@ uint8_t quick_sensor[] = { SENSOR_NUM_BPB_CDU_COOLANT_LEAKAGE_VOLT_V,
 void quick_sensor_poll_handler(void *arug0, void *arug1, void *arug2)
 {
 	k_msleep(1000); // delay 1 second to wait for drivers ready before start sensor polling
-	int quick_sensor_poll_interval_ms = 100;
+	int quick_sensor_poll_interval_ms = 30;
 
 	while (1) {
 		if (!get_sensor_init_done_flag()) {
@@ -413,11 +413,11 @@ sensor_cfg plat_sensor_config[] = {
 	{ SENSOR_NUM_BPB_CDU_COOLANT_LEAKAGE_VOLT_V, sensor_dev_ads112c, I2C_BUS5,
 	  BPB_ADS112C_1_ADDR, ADS112C_READ_OUTPUT_RAW, stby_access, 0, 0, SAMPLE_COUNT_DEFAULT,
 	  POLL_TIME_DEFAULT, ENABLE_SENSOR_POLLING, 0, SENSOR_INIT_STATUS, NULL, NULL,
-	  post_quick_sensor_read, &ads112c_post_args[3], &ads112c_init_args[0] },
+	  post_quick_sensor_read, &ads112c_post_args[3], &ads112c_init_args[8] },
 	{ SENSOR_NUM_BPB_RACK_COOLANT_LEAKAGE_VOLT_V, sensor_dev_ads112c, I2C_BUS5,
 	  BPB_ADS112C_3_ADDR, ADS112C_READ_OUTPUT_RAW, stby_access, 0, 0, SAMPLE_COUNT_DEFAULT,
 	  POLL_TIME_DEFAULT, ENABLE_SENSOR_POLLING, 0, SENSOR_INIT_STATUS, NULL, NULL,
-	  post_quick_sensor_read, &ads112c_post_args[3], &ads112c_init_args[0] },
+	  post_quick_sensor_read, &ads112c_post_args[3], &ads112c_init_args[8] },
 	{ SENSOR_NUM_SB_TTV_COOLANT_LEAKAGE_1_VOLT_V, sensor_dev_ads112c, I2C_BUS9,
 	  SB_ADS112C_1_ADDR, ADS112C_READ_OUTPUT_RAW, stby_access, ENABLE_RESET_CFG_REG, 0,
 	  SAMPLE_COUNT_DEFAULT, POLL_TIME_DEFAULT, ENABLE_SENSOR_POLLING, 0, SENSOR_INIT_STATUS,

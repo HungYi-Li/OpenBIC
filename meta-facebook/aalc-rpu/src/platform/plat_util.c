@@ -35,6 +35,11 @@
 static uint16_t temp_read_length;
 static uint16_t temp_read_data[I2C_MASTER_READ_BACK_MAX_SIZE];
 
+struct {
+	uint8_t idx;
+	uint32_t val;
+} status_flag_config;
+
 LOG_MODULE_REGISTER(plat_util);
 
 bool modbus_i2c_master_write_read(const uint16_t *modbus_data, uint8_t data_len)
@@ -105,6 +110,18 @@ void plat_disable_sensor_poll(void)
 	nct7363_wdt_all_disable();
 	disable_sensor_poll();
 	controlFSC(FSC_DISABLE);
+}
+
+// status flag config
+void set_status_flag_config(uint8_t idx, uint32_t val)
+{
+	status_flag_config.idx = idx;
+	status_flag_config.val = val;
+}
+void get_status_flag_config(uint8_t *idx, uint32_t *val)
+{
+	*idx = status_flag_config.idx;
+	*val = status_flag_config.val;
 }
 
 uint8_t get_rpu_ready_pin_status()

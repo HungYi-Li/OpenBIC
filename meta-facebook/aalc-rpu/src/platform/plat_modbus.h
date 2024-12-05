@@ -399,6 +399,7 @@ enum read_fru_data_type {
 #define MODBUS_HEAT_EXCHANGER_FAN_CONTROL_BOX_FBPN_ADDR 0x1A08
 
 #define MODBUS_test_for_write_uptime_ADDR 0x1A0C
+#define MODBUS_SET_LOG_LEVEL_ADDR 0x1A0D
 
 modbus_command_mapping *ptr_to_modbus_table(uint16_t addr);
 

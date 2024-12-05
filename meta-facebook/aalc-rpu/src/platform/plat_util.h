@@ -20,3 +20,4 @@ void plat_enable_sensor_poll();
 void plat_disable_sensor_poll();
 uint8_t get_rpu_ready_pin_status();
 float pow_of_10(int8_t exp);
+bool set_log_level(uint16_t data);

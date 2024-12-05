@@ -28,6 +28,7 @@
 #include "plat_gpio.h"
 #include "plat_pwm.h"
 #include "plat_fsc.h"
+#include <logging/log_ctrl.h>
 
 #define I2C_MASTER_READ_BACK_MAX_SIZE 16 // 16 registers
 
@@ -131,6 +132,37 @@ float pow_of_10(int8_t exp)
 	}
 
 	return ret;
+}
+
+bool set_log_level(uint16_t data)
+{
+	/*	LOG_LEVEL_NONE 0U
+		LOG_LEVEL_ERR  1U
+		LOG_LEVEL_WRN  2U
+		LOG_LEVEL_INF  3U
+		LOG_LEVEL_DBG  4U
+	*/
+	if (data > 4)
+		return false;
+
+	int level = data;
+	int backend_cnt = log_backend_count_get();
+	for (int i = 0; i < backend_cnt; i++) {
+		const struct log_backend *backend = log_backend_get(i);
+		printk("Backend %d: %s \n", i, backend->name);
+
+		for (int j = 0; j < log_sources_count(); j++) {
+			const char *name = log_name_get(j);
+			int dynamic_lvl = log_filter_get(backend, CONFIG_LOG_DOMAIN_ID, j, true);
+			int compiled_lvl = log_filter_get(backend, CONFIG_LOG_DOMAIN_ID, j, false);
+			printk("log name %s: dynamic %d, compiled %d\n", name, dynamic_lvl,
+			       compiled_lvl);
+
+			log_filter_set(backend, CONFIG_LOG_DOMAIN_ID, j, level);
+		}
+	}
+
+	return true;
 }
 
 #endif // PLAT_UTIL_H

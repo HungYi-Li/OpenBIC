@@ -658,7 +658,20 @@ uint8_t modbus_read_pump_running_time(modbus_command_mapping *cmd)
 
 	return MODBUS_EXC_NONE;
 }
+uint8_t modbus_set_log_level(modbus_command_mapping *cmd)
+{
+	CHECK_NULL_ARG_WITH_RETURN(cmd, MODBUS_EXC_ILLEGAL_DATA_VAL);
+	/*	LOG_LEVEL_NONE 0U
+		LOG_LEVEL_ERR  1U
+		LOG_LEVEL_WRN  2U
+		LOG_LEVEL_INF  3U
+		LOG_LEVEL_DBG  4U
+	*/
+	if (!set_log_level(cmd->data[0]))
+		return MODBUS_EXC_ILLEGAL_DATA_VAL;
 
+	return MODBUS_EXC_NONE;
+}
 modbus_command_mapping modbus_command_table[] = {
 	// addr, write_fn, read_fn, arg0, arg1, arg2, size
 	{ MODBUS_BPB_RPU_COOLANT_FLOW_RATE_LPM_ADDR, NULL, modbus_get_senser_reading,
@@ -1232,6 +1245,8 @@ modbus_command_mapping modbus_command_table[] = {
 	{ MODBUS_HEAT_EXCHANGER_CONTROL_BOX_FBPN_ADDR, NULL, NULL, 0, 0, 0, 4 },
 	{ MODBUS_HEAT_EXCHANGER_FANS_FBPN_ADDR, NULL, NULL, 0, 0, 0, 4 },
 	{ MODBUS_HEAT_EXCHANGER_FAN_CONTROL_BOX_FBPN_ADDR, NULL, NULL, 0, 0, 0, 4 },
+	// set log level
+	{ MODBUS_SET_LOG_LEVEL_ADDR, modbus_set_log_level, NULL, 0, 0, 0, 1 },
 };
 
 modbus_command_mapping *ptr_to_modbus_table(uint16_t addr)

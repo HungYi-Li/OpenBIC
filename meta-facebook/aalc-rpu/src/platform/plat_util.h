@@ -13,14 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum FSC_MODE_E{
-  FSC_MODE_AUTO_MODE = 0,
-  FSC_MODE_MANUAL_MODE,
-  FSC_MODE_AUTO_TUNE,
-  FSC_MODE_SEMI_MODE,
-  FSC_MODE_MAX,
-}
-
 bool modbus_i2c_master_write_read(const uint16_t *modbus_data, uint8_t data_len);
 void modbus_i2c_master_write_read_response(uint16_t *modbus_data);
 void regs_reverse(uint16_t reg_len, uint16_t *data);
@@ -31,3 +23,4 @@ void get_status_flag_config(uint8_t *idx, uint32_t *val);
 uint8_t get_rpu_ready_pin_status();
 float pow_of_10(int8_t exp);
 bool set_log_level(uint16_t data);
+uint8_t get_fsc_mode();

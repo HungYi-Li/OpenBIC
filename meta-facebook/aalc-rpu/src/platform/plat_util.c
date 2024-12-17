@@ -182,4 +182,9 @@ bool set_log_level(uint16_t data)
 	return true;
 }
 
+uint8_t get_fsc_mode()
+{
+	if(get_manual_pwm_flag(MANUAL_PWM_E_PUMP))
+}
+
 #endif // PLAT_UTIL_H

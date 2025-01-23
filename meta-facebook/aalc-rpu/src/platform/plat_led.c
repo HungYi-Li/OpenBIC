@@ -199,6 +199,6 @@ bool fault_led_control(void)
 		}
 	}
 
-	led_ctrl(LED_IDX_E_FAULT, LED_TURN_OFF);
+	//led_ctrl(LED_IDX_E_FAULT, LED_TURN_OFF);
 	return false;
 }

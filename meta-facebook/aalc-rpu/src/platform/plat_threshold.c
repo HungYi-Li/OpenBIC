@@ -255,7 +255,8 @@ void fan_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 
 	// read back data from reg
 	// EVT
-	if (get_board_stage() == BOARD_STAGE_EVT) {
+	uint8_t stage = get_board_stage();
+	if (stage == BOARD_STAGE_EVT) {
 		// read back data from reg and set fault gpio
 		if (!nct7363_read_back_data(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 					    &pwrgd_read_back_val)) {
@@ -301,7 +302,7 @@ void fan_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 		LOG_DBG("LCR fault_write_in_val: %d", pwrgd_read_back_val);
 		if (!nct7363_write(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET, pwrgd_read_back_val))
 			LOG_ERR("Write fan_board_pwrgd gpio fail");
-	} else if (get_board_stage() == BOARD_STAGE_DVT) {
+	} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 		pwrgd_gpio_offset = NCT7363_GPIO0x_OUTPUT_PORT_REG_OFFSET;
 		// pwrgd and fault is in same offset
 		if (!nct7363_read_back_data(cfg, pwrgd_gpio_offset, &pwrgd_read_back_val)) {
@@ -420,7 +421,7 @@ void pump_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 				fault_read_val);
 			return;
 		}
-	} else if (stage == BOARD_STAGE_DVT) {
+	} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 		pwrgd_gpio_offset = NCT7363_GPIO0x_OUTPUT_PORT_REG_OFFSET;
 		fault_offset = NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET;
 		set_pwrgd_bit_location = DVT_PUMP_BOARD_PWRGD_BIT_LOCATION;
@@ -713,7 +714,7 @@ sensor_threshold threshold_tbl[] = {
 	  THRESHOLD_ARG0_TABLE_INDEX },
 	{ SENSOR_NUM_BPB_RACK_LEVEL_1, THRESHOLD_ENABLE_LCR, 0.1, 0, level_sensor_do, 0, 1 },
 	{ SENSOR_NUM_BPB_RACK_LEVEL_2, THRESHOLD_ENABLE_LCR, 0.1, 0, level_sensor_do, 0, 1 },
-	{ SENSOR_NUM_BPB_RPU_LEVEL, THRESHOLD_ENABLE_LCR, 0.1, 0, rpu_level_sensor_do, 0, 1 },
+	{ SENSOR_NUM_BPB_RPU_LEVEL, THRESHOLD_ENABLE_LCR, 0.1, 0, rpu_level_sensor_do, 0, 5 },
 	{ SENSOR_NUM_FAN_PRSNT, THRESHOLD_ENABLE_DISCRETE, 0, 0, fb_prsnt_handle,
 	  THRESHOLD_ARG0_TABLE_INDEX, 1 },
 	{ SENSOR_NUM_HEX_EXTERNAL_Y_FILTER, THRESHOLD_ENABLE_UCR, 0, 30, sensor_log,
@@ -957,9 +958,8 @@ bool get_threshold_poll_enable_flag()
 uint32_t get_threshold_status(uint8_t sensor_num)
 {
 	// This is for DVT work around, it will be removed after hardware design fixed
-	if (sensor_num == SENSOR_NUM_BPB_RPU_LEVEL) {
+	if ((get_board_stage() == BOARD_STAGE_DVT) && (sensor_num == SENSOR_NUM_BPB_RPU_LEVEL))
 		return 0;
-	}
 
 	for (uint8_t i = 0; i < ARRAY_SIZE(threshold_tbl); i++)
 		if (threshold_tbl[i].sensor_num == sensor_num)
@@ -1032,7 +1032,7 @@ void threshold_poll_init()
 				// level3 sensor disable
 				if (threshold_tbl[i].sensor_num == SENSOR_NUM_BPB_RPU_LEVEL)
 					threshold_tbl[i].type = THRESHOLD_DISABLE;
-			} else if (stage == BOARD_STAGE_DVT) {
+			} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 				LOG_DBG("DVT board stage %d", stage);
 			} else {
 				LOG_ERR("unknown board stage %d", stage);
@@ -1236,7 +1236,8 @@ void fan_pump_pwrgd_handler(void *arug0, void *arug1, void *arug2)
 			uint8_t pwrgd_read_back_val = 0;
 
 			// check stage is EVT
-			if (get_board_stage() == BOARD_STAGE_EVT) {
+			uint8_t stage = get_board_stage();
+			if (stage == BOARD_STAGE_EVT) {
 				if (!nct7363_read_back_data(cfg,
 							    NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 							    &pwrgd_read_back_val))
@@ -1253,7 +1254,7 @@ void fan_pump_pwrgd_handler(void *arug0, void *arug1, void *arug2)
 				if (!nct7363_write(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 						   pwrgd_read_back_val))
 					LOG_ERR("EVT Write pump_board_pwrgd gpio fail");
-			} else if (get_board_stage() == BOARD_STAGE_DVT) {
+			} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 				// DVT
 				if (!nct7363_read_back_data(cfg,
 							    NCT7363_GPIO0x_OUTPUT_PORT_REG_OFFSET,

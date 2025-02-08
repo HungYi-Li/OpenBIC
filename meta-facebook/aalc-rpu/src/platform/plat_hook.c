@@ -1061,6 +1061,8 @@ static double averge_flow_rate(double val)
 	return (count_num > 0) ? (total_val / count_num) : 0.0;
 }
 
+int test_rack_temp = 15664;
+int test_rpu_temp = 15888;
 bool post_ads112c_read(sensor_cfg *cfg, void *args, int *reading)
 {
 	CHECK_NULL_ARG_WITH_RETURN(cfg, false);
@@ -1097,12 +1099,12 @@ bool post_ads112c_read(sensor_cfg *cfg, void *args, int *reading)
 		val = 6.89475729 * val;
 		break;
 	case PLATFORM_ADS112C_TEMP_RACK:
-		val = (rawValue - 15664) * 0.015873;
+		val = (rawValue - test_rack_temp) * 0.015873;
 		val = 1.0678 * val - 5.8373;
 		val = 1.0031 * val + 0.1566;
 		break;
 	case PLATFORM_ADS112C_TEMP_RPU: //CDU_Inlet_Liq_T
-		val = (rawValue - 15888) * 0.015873;
+		val = (rawValue - test_rpu_temp) * 0.015873;
 		val = 1.0678 * val - 5.8373;
 		val = 1.0031 * val + 0.1566;
 		break;

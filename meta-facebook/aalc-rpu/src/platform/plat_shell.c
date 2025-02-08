@@ -485,9 +485,24 @@ static void cmd_modbus_read(const struct shell *shell, size_t argc, char **argv)
 }
 
 // test command
+extern int test_rack_temp;
+extern int test_rpu_temp;
 void cmd_test(const struct shell *shell, size_t argc, char **argv)
 {
 	// test code
+	int idx = strtoul(argv[1], NULL, 10);
+	int val = strtoul(argv[1], NULL, 10);
+
+	if (idx == 1)
+		test_rack_temp = val;
+	else if (idx == 2)
+		test_rpu_temp = val;
+	else if (idx == 3)
+		shell_warn(shell, "[test] rack temp: %d", test_rack_temp);
+	else if (idx == 4)
+		shell_warn(shell, "[test] rpu temp: %d", test_rpu_temp);
+	else
+		shell_warn(shell, "[test] error idx: %d", idx);
 }
 
 /* Sub-command Level 3 of command test */

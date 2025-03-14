@@ -29,6 +29,7 @@
 #include "plat_pwm.h"
 #include "plat_fsc.h"
 #include "plat_hook.h"
+#include <shell/shell_uart.h>
 #include <logging/log_ctrl.h>
 
 #define I2C_MASTER_READ_BACK_MAX_SIZE 16 // 16 registers
@@ -198,6 +199,28 @@ uint8_t get_fsc_mode()
 		return FSC_MODE_SEMI_MODE;
 	else
 		return FSC_MODE_UNKNOW;
+}
+
+bool get_abr(void)
+{
+	// check SCU510[11][12][13] is 1
+	return ((sys_read32(0x7e6e2510) & 0x3800) == 0x3800);
+}
+
+void set_abr(uint8_t onoff)
+{
+	char cmd[20];
+
+	sprintf(cmd, "otp pb strap 0x2b %d", (onoff ? 1 : 0));
+	shell_execute_cmd(shell_backend_uart_get_ptr(), cmd);
+
+	sprintf(cmd, "otp pb strap 0x2c %d", (onoff ? 1 : 0));
+	shell_execute_cmd(shell_backend_uart_get_ptr(), cmd);
+
+	sprintf(cmd, "otp pb strap 0x2d %d", (onoff ? 1 : 0));
+	shell_execute_cmd(shell_backend_uart_get_ptr(), cmd);
+
+	shell_execute_cmd(shell_backend_uart_get_ptr(), "");
 }
 
 #endif // PLAT_UTIL_H

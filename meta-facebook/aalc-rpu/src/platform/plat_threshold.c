@@ -221,15 +221,6 @@ bool rpu_ready_recovery()
 	if (get_status_flag(STATUS_FLAG_LEAK))
 		return false;
 
-	bool hsc_fail = false;
-	if (!gpio_get(PWRGD_P48V_HSC_LF_R)) {
-		if (!hsc_fail) {
-			set_status_flag(STATUS_FLAG_FAILURE, GPIO_FAIL_BPB_HSC, 1);
-			error_log_event(SENSOR_NUM_BPB_HSC_FAIL, IS_ABNORMAL_VAL);
-			hsc_fail = true;
-		}
-	}
-
 	const uint8_t rpu_recovery_table[] = {
 		PUMP_FAIL_LOW_LEVEL,	  PUMP_FAIL_LOW_RPU_LEVEL,	PUMP_FAIL_TWO_PUMP_LCR,
 		PUMP_FAIL_ABNORMAL_PRESS, PUMP_FAIL_ABNORMAL_FLOW_RATE, GPIO_FAIL_BPB_HSC,
@@ -255,7 +246,8 @@ void fan_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 
 	// read back data from reg
 	// EVT
-	if (get_board_stage() == BOARD_STAGE_EVT) {
+	uint8_t stage = get_board_stage();
+	if (stage == BOARD_STAGE_EVT) {
 		// read back data from reg and set fault gpio
 		if (!nct7363_read_back_data(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 					    &pwrgd_read_back_val)) {
@@ -301,7 +293,7 @@ void fan_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 		LOG_DBG("LCR fault_write_in_val: %d", pwrgd_read_back_val);
 		if (!nct7363_write(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET, pwrgd_read_back_val))
 			LOG_ERR("Write fan_board_pwrgd gpio fail");
-	} else if (get_board_stage() == BOARD_STAGE_DVT) {
+	} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 		pwrgd_gpio_offset = NCT7363_GPIO0x_OUTPUT_PORT_REG_OFFSET;
 		// pwrgd and fault is in same offset
 		if (!nct7363_read_back_data(cfg, pwrgd_gpio_offset, &pwrgd_read_back_val)) {
@@ -389,10 +381,8 @@ static void flow_rate_ready()
 K_WORK_DELAYABLE_DEFINE(flow_rate_ready_worker, flow_rate_ready);
 static void reset_flow_rate_ready()
 {
-	if (!flow_rate_ready_flag)
-		return;
 	flow_rate_ready_flag = false;
-	k_work_schedule(&flow_rate_ready_worker, K_SECONDS(10));
+	k_work_schedule(&flow_rate_ready_worker, K_SECONDS(40));
 }
 
 void pump_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
@@ -420,7 +410,7 @@ void pump_board_tach_status_handler(uint8_t sensor_num, uint8_t status)
 				fault_read_val);
 			return;
 		}
-	} else if (stage == BOARD_STAGE_DVT) {
+	} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 		pwrgd_gpio_offset = NCT7363_GPIO0x_OUTPUT_PORT_REG_OFFSET;
 		fault_offset = NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET;
 		set_pwrgd_bit_location = DVT_PUMP_BOARD_PWRGD_BIT_LOCATION;
@@ -534,17 +524,10 @@ void abnormal_temp_do(uint32_t sensor_num, uint32_t status)
 					 PUMP_FAIL_ABNORMAL_COOLANT_INLET_TEMP :
 				 (sensor_num == SENSOR_NUM_BPB_RPU_COOLANT_OUTLET_TEMP_C) ?
 					 PUMP_FAIL_ABNORMAL_COOLANT_OUTLET_TEMP :
-				 (sensor_num == SENSOR_NUM_MB_RPU_AIR_INLET_TEMP_C) ?
-					 PUMP_FAIL_ABNORMAL_AIR_INLET_TEMP :
 					 0xFF;
 
-	bool save_log = (sensor_num == SENSOR_NUM_BPB_RPU_COOLANT_INLET_TEMP_C)	 ? true :
-			(sensor_num == SENSOR_NUM_BPB_RPU_COOLANT_OUTLET_TEMP_C) ? true :
-										   false;
-
 	if (status == THRESHOLD_STATUS_UCR) {
-		if (save_log)
-			error_log_event(sensor_num, IS_ABNORMAL_VAL);
+		error_log_event(sensor_num, IS_ABNORMAL_VAL);
 		set_status_flag(STATUS_FLAG_FAILURE, failure_status, 1);
 	} else if (status == THRESHOLD_STATUS_NOT_ACCESS) {
 		if (sensor_num == SENSOR_NUM_BPB_RPU_COOLANT_OUTLET_TEMP_C) {
@@ -614,8 +597,7 @@ sensor_threshold threshold_tbl[] = {
 	  SENSOR_NUM_BPB_RPU_COOLANT_INLET_TEMP_C, 1 },
 	{ SENSOR_NUM_BPB_RPU_COOLANT_OUTLET_TEMP_C, THRESHOLD_ENABLE_UCR, 0, 55, abnormal_temp_do,
 	  SENSOR_NUM_BPB_RPU_COOLANT_OUTLET_TEMP_C, 1 },
-	{ SENSOR_NUM_MB_RPU_AIR_INLET_TEMP_C, THRESHOLD_ENABLE_UCR, 0, 42, abnormal_temp_do,
-	  SENSOR_NUM_MB_RPU_AIR_INLET_TEMP_C, 1 },
+	{ SENSOR_NUM_MB_RPU_AIR_INLET_TEMP_C, THRESHOLD_ENABLE_UCR, 0, 42, NULL, 0, 1 },
 	{ SENSOR_NUM_BPB_HEX_WATER_INLET_TEMP_C, THRESHOLD_ENABLE_UCR, 0, 65, sensor_log,
 	  SENSOR_NUM_BPB_HEX_WATER_INLET_TEMP_C, 1 },
 	{ SENSOR_NUM_SB_HEX_AIR_INLET_1_TEMP_C, THRESHOLD_ENABLE_UCR, 0, 60, NULL, 0, 1 },
@@ -666,11 +648,11 @@ sensor_threshold threshold_tbl[] = {
 	{ SENSOR_NUM_FB_14_FAN_TACH_RPM, THRESHOLD_ENABLE_LCR, 200, 0, hex_fan_failure_do,
 	  SENSOR_NUM_FB_14_FAN_TACH_RPM, 1 },
 	{ SENSOR_NUM_PB_1_PUMP_TACH_RPM, THRESHOLD_ENABLE_BOTH, 0, 0, pump_failure_do,
-	  THRESHOLD_ARG0_TABLE_INDEX, 6 },
+	  THRESHOLD_ARG0_TABLE_INDEX, 10 },
 	{ SENSOR_NUM_PB_2_PUMP_TACH_RPM, THRESHOLD_ENABLE_BOTH, 0, 0, pump_failure_do,
-	  THRESHOLD_ARG0_TABLE_INDEX, 6 },
+	  THRESHOLD_ARG0_TABLE_INDEX, 10 },
 	{ SENSOR_NUM_PB_3_PUMP_TACH_RPM, THRESHOLD_ENABLE_BOTH, 0, 0, pump_failure_do,
-	  THRESHOLD_ARG0_TABLE_INDEX, 6 },
+	  THRESHOLD_ARG0_TABLE_INDEX, 10 },
 	{ SENSOR_NUM_PB_1_FAN_1_TACH_RPM, THRESHOLD_ENABLE_LCR, 500, 0, rpu_internal_fan_failure_do,
 	  SENSOR_NUM_PB_1_FAN_1_TACH_RPM, 1 },
 	{ SENSOR_NUM_PB_1_FAN_2_TACH_RPM, THRESHOLD_ENABLE_LCR, 500, 0, rpu_internal_fan_failure_do,
@@ -706,26 +688,26 @@ sensor_threshold threshold_tbl[] = {
 	{ SENSOR_NUM_FB_13_HSC_TEMP_C, THRESHOLD_DISABLE, 0, 0, NULL, 0, 1 },
 	{ SENSOR_NUM_FB_14_HSC_TEMP_C, THRESHOLD_DISABLE, 0, 0, NULL, 0, 1 },
 	{ SENSOR_NUM_BPB_RPU_COOLANT_INLET_P_KPA, THRESHOLD_ENABLE_LCR, -50, 0, sensor_log,
-	  SENSOR_NUM_BPB_RPU_COOLANT_INLET_P_KPA, 1 },
+	  SENSOR_NUM_BPB_RPU_COOLANT_INLET_P_KPA, 3 },
 	{ SENSOR_NUM_BPB_RPU_COOLANT_OUTLET_P_KPA, THRESHOLD_ENABLE_UCR, 0, 300, abnormal_press_do,
-	  0, 1 },
+	  0, 3 },
 	{ SENSOR_NUM_BPB_RPU_COOLANT_FLOW_RATE_LPM, THRESHOLD_ENABLE_LCR, 10, 0, abnormal_flow_do,
-	  THRESHOLD_ARG0_TABLE_INDEX },
+	  THRESHOLD_ARG0_TABLE_INDEX, 20 },
 	{ SENSOR_NUM_BPB_RACK_LEVEL_1, THRESHOLD_ENABLE_LCR, 0.1, 0, level_sensor_do, 0, 1 },
 	{ SENSOR_NUM_BPB_RACK_LEVEL_2, THRESHOLD_ENABLE_LCR, 0.1, 0, level_sensor_do, 0, 1 },
-	{ SENSOR_NUM_BPB_RPU_LEVEL, THRESHOLD_ENABLE_LCR, 0.1, 0, rpu_level_sensor_do, 0, 1 },
+	{ SENSOR_NUM_BPB_RPU_LEVEL, THRESHOLD_ENABLE_LCR, 0.1, 0, rpu_level_sensor_do, 0, 5 },
 	{ SENSOR_NUM_FAN_PRSNT, THRESHOLD_ENABLE_DISCRETE, 0, 0, fb_prsnt_handle,
 	  THRESHOLD_ARG0_TABLE_INDEX, 1 },
 	{ SENSOR_NUM_HEX_EXTERNAL_Y_FILTER, THRESHOLD_ENABLE_UCR, 0, 30, sensor_log,
-	  SENSOR_NUM_HEX_EXTERNAL_Y_FILTER, 1 },
+	  SENSOR_NUM_HEX_EXTERNAL_Y_FILTER, 3 },
 	{ SENSOR_NUM_BPB_RACK_PRESSURE_3_P_KPA, THRESHOLD_ENABLE_UCR, 0, 300, sensor_log,
-	  SENSOR_NUM_BPB_RACK_PRESSURE_3_P_KPA, 1 },
+	  SENSOR_NUM_BPB_RACK_PRESSURE_3_P_KPA, 3 },
 	{ SENSOR_NUM_BPB_RACK_PRESSURE_4_P_KPA, THRESHOLD_ENABLE_UCR, 0, 300, sensor_log,
-	  SENSOR_NUM_BPB_RACK_PRESSURE_4_P_KPA, 1 },
+	  SENSOR_NUM_BPB_RACK_PRESSURE_4_P_KPA, 3 },
 	{ SENSOR_NUM_SB_HEX_PRESSURE_1_P_KPA, THRESHOLD_ENABLE_UCR, 0, 200, sensor_log,
-	  SENSOR_NUM_SB_HEX_PRESSURE_1_P_KPA, 1 },
+	  SENSOR_NUM_SB_HEX_PRESSURE_1_P_KPA, 3 },
 	{ SENSOR_NUM_SB_HEX_PRESSURE_2_P_KPA, THRESHOLD_ENABLE_UCR, 0, 200, sensor_log,
-	  SENSOR_NUM_SB_HEX_PRESSURE_2_P_KPA, 1 },
+	  SENSOR_NUM_SB_HEX_PRESSURE_2_P_KPA, 3 },
 	{ SENSOR_NUM_SB_HEX_AIR_INLET_AVG_TEMP_C, THRESHOLD_ENABLE_BOTH, -20, 100, sensor_log,
 	  SENSOR_NUM_SB_HEX_AIR_INLET_AVG_TEMP_C, 1 },
 
@@ -782,27 +764,32 @@ void pump_failure_do(uint32_t thres_tbl_idx, uint32_t status)
 /* return true means pump 1/2/3 not access or tach too low */
 static bool check_pump_tach_too_low()
 {
-	static uint8_t retry[3] = { 0 };
-
 	for (uint8_t i = 0; i < ARRAY_SIZE(pump_sensor_array); i++) {
 		float tmp = 0;
 		if (get_sensor_reading_to_real_val(pump_sensor_array[i], &tmp) !=
 		    SENSOR_READ_4BYTE_ACUR_SUCCESS)
 			return true;
 
-		if (tmp >= 500) {
-			if (retry[i] < 10) {
-				retry[i]++;
-				return false;
-			} else {
-				retry[i] = 0;
-				return true;
-			}
-		}
+		if (tmp >= 1000)
+			return false;
 	}
 
-	memset(retry, 0, 3);
-	return false;
+	return true;
+}
+
+static void pump_tach_too_low_behavior()
+{
+	static bool is_low = true;
+	if (check_pump_tach_too_low()) {
+		if (k_work_cancel_delayable(&flow_rate_ready_worker) != 0) {
+			LOG_ERR("cancel flow ready delay work fail");
+		}
+		flow_rate_ready_flag = false;
+		is_low = true;
+	} else if (is_low) {
+		reset_flow_rate_ready();
+		is_low = false;
+	}
 }
 
 void abnormal_flow_do(uint32_t thres_tbl_idx, uint32_t status)
@@ -814,10 +801,6 @@ void abnormal_flow_do(uint32_t thres_tbl_idx, uint32_t status)
 
 	if (status == THRESHOLD_STATUS_LCR) {
 		if (!flow_rate_ready_flag) {
-			thres_p->last_status = THRESHOLD_STATUS_NORMAL;
-			return;
-		}
-		if (!check_pump_tach_too_low()) {
 			thres_p->last_status = THRESHOLD_STATUS_NORMAL;
 			return;
 		}
@@ -957,9 +940,8 @@ bool get_threshold_poll_enable_flag()
 uint32_t get_threshold_status(uint8_t sensor_num)
 {
 	// This is for DVT work around, it will be removed after hardware design fixed
-	if (sensor_num == SENSOR_NUM_BPB_RPU_LEVEL) {
+	if ((get_board_stage() == BOARD_STAGE_DVT) && (sensor_num == SENSOR_NUM_BPB_RPU_LEVEL))
 		return 0;
-	}
 
 	for (uint8_t i = 0; i < ARRAY_SIZE(threshold_tbl); i++)
 		if (threshold_tbl[i].sensor_num == sensor_num)
@@ -1032,7 +1014,7 @@ void threshold_poll_init()
 				// level3 sensor disable
 				if (threshold_tbl[i].sensor_num == SENSOR_NUM_BPB_RPU_LEVEL)
 					threshold_tbl[i].type = THRESHOLD_DISABLE;
-			} else if (stage == BOARD_STAGE_DVT) {
+			} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 				LOG_DBG("DVT board stage %d", stage);
 			} else {
 				LOG_ERR("unknown board stage %d", stage);
@@ -1099,7 +1081,7 @@ void pump_change_threshold(uint8_t sensor_num, uint8_t duty)
 		return;
 
 	// don't change for sit test
-	if (get_status_flag(STATUS_FLAG_DEBUG_MODE) & BIT(DEBUG_MODE_PUMP_THRESHOLD))
+	if (get_status_flag(STATUS_FLAG_SPECIAL_MODE) & BIT(SPECIAL_MODE_PUMP_THRESHOLD_DEBUG))
 		return;
 
 	sensor_threshold *p = find_threshold_tbl_entry(sensor_num);
@@ -1108,7 +1090,7 @@ void pump_change_threshold(uint8_t sensor_num, uint8_t duty)
 
 	uint32_t standard_val = get_pump_standard_rpm(duty);
 	p->lcr = standard_val * 0.75;
-	p->ucr = standard_val * 1.25;
+	p->ucr = (standard_val) ? (standard_val * 1.25) : 1000;
 }
 
 void check_bpb_hsc_status(void)
@@ -1189,6 +1171,9 @@ void plat_sensor_poll_post()
 		}
 	}
 
+	// check pump >= 500 and countdown flow ready
+	pump_tach_too_low_behavior();
+
 	// check bpb hsc
 	check_bpb_hsc_status();
 
@@ -1236,7 +1221,8 @@ void fan_pump_pwrgd_handler(void *arug0, void *arug1, void *arug2)
 			uint8_t pwrgd_read_back_val = 0;
 
 			// check stage is EVT
-			if (get_board_stage() == BOARD_STAGE_EVT) {
+			uint8_t stage = get_board_stage();
+			if (stage == BOARD_STAGE_EVT) {
 				if (!nct7363_read_back_data(cfg,
 							    NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 							    &pwrgd_read_back_val))
@@ -1253,7 +1239,7 @@ void fan_pump_pwrgd_handler(void *arug0, void *arug1, void *arug2)
 				if (!nct7363_write(cfg, NCT7363_GPIO1x_OUTPUT_PORT_REG_OFFSET,
 						   pwrgd_read_back_val))
 					LOG_ERR("EVT Write pump_board_pwrgd gpio fail");
-			} else if (get_board_stage() == BOARD_STAGE_DVT) {
+			} else if ((stage == BOARD_STAGE_DVT) || (stage == BOARD_STAGE_MP)) {
 				// DVT
 				if (!nct7363_read_back_data(cfg,
 							    NCT7363_GPIO0x_OUTPUT_PORT_REG_OFFSET,

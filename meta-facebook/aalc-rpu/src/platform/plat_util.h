@@ -26,3 +26,4 @@ bool set_log_level(uint16_t data);
 uint8_t get_fsc_mode();
 bool get_abr(void);
 void set_abr(uint8_t onoff);
+void set_fmc_wdt(uint32_t val);

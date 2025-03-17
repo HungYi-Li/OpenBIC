@@ -816,6 +816,15 @@ uint8_t modbus_set_2nd_boot_update_flag(modbus_command_mapping *cmd)
 	return MODBUS_EXC_NONE;
 }
 
+uint8_t modbus_set_fmc_wdt(modbus_command_mapping *cmd)
+{
+	CHECK_NULL_ARG_WITH_RETURN(cmd, MODBUS_EXC_ILLEGAL_DATA_VAL);
+
+	set_fmc_wdt((uint32_t)cmd->data[0]);
+
+	return MODBUS_EXC_NONE;
+}
+
 modbus_command_mapping modbus_command_table[] = {
 	// addr, write_fn, read_fn, arg0, arg1, arg2, size
 	{ MODBUS_BPB_RPU_COOLANT_FLOW_RATE_LPM_ADDR, NULL, modbus_get_senser_reading,
@@ -1405,6 +1414,7 @@ modbus_command_mapping modbus_command_table[] = {
 	{ MODBUS_GET_BOOT_SOURCE_ADDR, NULL, modbus_get_boot_source, 0, 0, 0, 1 },
 	{ MODBUS_GET_SET_2ND_BOOT_UPDATE_FLAG_ADDR, modbus_set_2nd_boot_update_flag,
 	  modbus_get_2nd_boot_update_flag, 0, 0, 0, 1 },
+	{ MODBUS_SET_FMC_WDT_ADDR, modbus_set_fmc_wdt, NULL, 0, 0, 0, 1 },
 	{ MODBUS_DISABLE_ABR_ADDR, modbus_set_abr, NULL, 0, 0, 0, 1 },
 };
 

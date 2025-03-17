@@ -223,4 +223,10 @@ void set_abr(uint8_t onoff)
 	shell_execute_cmd(shell_backend_uart_get_ptr(), "");
 }
 
+void set_fmc_wdt(uint32_t val)
+{
+	// set FMC64[0]: enable watchdog
+	sys_write32(val, 0x7e620064);
+}
+
 #endif // PLAT_UTIL_H

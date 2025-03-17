@@ -59,6 +59,11 @@ void set_boot_source()
 {
 	// FMC64[4]: Boot flash source select indicator
 	boot_source = (sys_read32(0x7e620064) >> 4) & 0x01;
+
+	/* if boot from alternate source,
+	   set boot from primary source  */
+	if (boot_source)
+		sys_write32(0x00ea0000, 0x7e620064);
 }
 
 LOG_MODULE_REGISTER(plat_class);

@@ -52,7 +52,7 @@ SCU_CFG scu_cfg[] = {
 	{ 0x7e6e261C, 0xFE300005 },
 	{ 0x7e6e2630, 0x00000002 },
 	// OTP
-	{ 0x7e620064, 0x00ea0000 },
+	{ 0x7e620064, 0x00000000 },
 };
 
 uint8_t pump_board_init_tbl[] = {

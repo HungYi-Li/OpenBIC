@@ -29,6 +29,7 @@ LOG_MODULE_REGISTER(plat_class);
 static uint8_t vr_module = 0;
 static uint8_t ubc_module = 0;
 static uint8_t mmc_slot = 0;
+static uint8_t asic_board_id = 0;
 
 static bool plat_slot_read(uint8_t *data)
 {
@@ -64,6 +65,11 @@ void init_plat_config()
 
 	change_sensor_cfg(vr_module);
 
+	uint8_t board_id = 0;
+	plat_read_cpld(CPLD_OFFSET_ASIC_BOARD_ID, &board_id, 1);
+
+	asic_board_id = board_id & 0x03;
+
 	// cpld fru offset 0: slot
 	plat_slot_read(&mmc_slot);
 }
@@ -81,4 +87,9 @@ uint8_t get_ubc_module()
 uint8_t get_mmc_slot()
 {
 	return mmc_slot;
+}
+
+uint8_t get_asic_board_id()
+{
+	return asic_board_id;
 }

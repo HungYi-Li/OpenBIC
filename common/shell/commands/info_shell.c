@@ -17,17 +17,13 @@
 #include "info_shell.h"
 #include "plat_version.h"
 #include "util_sys.h"
+#include <drivers/spi.h>
 
 #ifndef CONFIG_BOARD
 #define CONFIG_BOARD "unknown"
 #endif
 
 #define RTOS_TYPE "Zephyr"
-
-__weak void pal_show_extra_info(const struct shell *shell)
-{
-	return;
-}
 
 int cmd_info_print(const struct shell *shell, size_t argc, char **argv)
 {
@@ -48,9 +44,45 @@ int cmd_info_print(const struct shell *shell, size_t argc, char **argv)
 	shell_print(shell, "* FW DATE:       %x%x.%x.%x", BIC_FW_YEAR_MSB, BIC_FW_YEAR_LSB,
 		    BIC_FW_WEEK, BIC_FW_VER);
 	shell_print(shell, "* FW IMAGE:      %s.bin", CONFIG_KERNEL_BIN_NAME);
-	pal_show_extra_info(shell);
 	shell_print(
 		shell,
 		"========================{SHELL COMMAND INFO}========================================");
+
+	const struct device *spi_dev = device_get_binding("SPIP");
+	if (!spi_dev) {
+		shell_print(shell, "Failed to get SPI device");
+		return 0;
+	}
+
+	const struct spi_config spi_cfg_single = {
+		.frequency = 6000000, // 6MHz
+		.operation =
+			SPI_OP_MODE_MASTER | SPI_TRANSFER_MSB | SPI_WORD_SET(8) | SPI_LINES_SINGLE,
+		.slave = 0,
+		.cs = NULL,
+	};
+
+	uint8_t cmd_buf[100] = { 0 };
+	uint8_t rsp_buf[100] = { 0 };
+
+	struct spi_buf tx_buf[] = {
+		{ .buf = cmd_buf, .len = 2 },
+	};
+	const struct spi_buf_set tx = { .buffers = tx_buf, .count = ARRAY_SIZE(tx_buf) };
+	struct spi_buf rx_buf[] = { { .buf = rsp_buf, .len = 4 } };
+	const struct spi_buf_set rx = { .buffers = rx_buf, .count = ARRAY_SIZE(rx_buf) };
+
+	cmd_buf[0] = 0xff;
+	cmd_buf[1] = 0x00;
+
+	int err = spi_transceive(spi_dev, &spi_cfg_single, &tx, &rx);
+	if (err) {
+		shell_error(shell, "Failed to read RX buffer %d", err);
+		return 0;
+	}
+
+	shell_print(shell, "SPI RX buffer:");
+	shell_hexdump(shell, rsp_buf, rx_buf->len);
+
 	return 0;
 }
